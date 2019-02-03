@@ -1,0 +1,7 @@
+[package]
+name = "ch08"
+version = "0.1.0"
+authors = ["Agent47 <654136828@qq.com>"]
+edition = "2018"
+
+[dependencies]
