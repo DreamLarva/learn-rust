@@ -27,7 +27,7 @@ pub fn ch10_01_syntax() {
         }
         enum Result<T,E> {
             Ok(T),
-            Err(E)
+            Err(E),
         }
     }
 
