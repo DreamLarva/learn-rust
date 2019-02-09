@@ -17,7 +17,8 @@ fn main() {
 //    ch09::ch09_02_recoverable_errors_with_result();
 //    ch09::ch09_03_to_panic_or_not_to_panic();
 
-    ch10::ch10_01_syntax();
+//    ch10::ch10_01_syntax();
+    ch10::ch10_02_traits()
 
 
 }
