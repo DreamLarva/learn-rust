@@ -1,9 +1,12 @@
+#![allow(unused_variables)] // 不对 未使用的变量 warning
+
+
+
 use std::collections::HashMap;
 use std::fs::{self, File};
 use std::io::ErrorKind;
 use std::io;
 use std::io::Read;
-
 
 pub fn ch08_01_vectors() {
     // 新建 Vector

@@ -1,3 +1,6 @@
+#![allow(unused_variables)] // 不对 未使用的变量 warning
+
+
 use std::collections::HashMap;
 use std::fs::{self, File};
 use std::io::ErrorKind;
