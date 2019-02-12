@@ -35,8 +35,9 @@ fn main() {
 //    ch05::ch05_02_example_structs();
 //    ch05::ch05_03_method_syntax();
 
-    ch06::ch06_01_defining_an_enum();
-    ch06::ch06_03_if_let();
+//    ch06::ch06_01_defining_an_enum();
+//    ch06::ch06_03_if_let();
+
 
 //    ch08::ch08_01_vectors();
 //    ch08::ch08_02_strings();
