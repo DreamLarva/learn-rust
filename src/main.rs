@@ -1,7 +1,7 @@
 #![allow(unused_variables)] // 不对 未使用的变量 warning
 
 use std::collections::HashMap;
-use std::fs::{self,File};
+use std::fs::{self, File};
 use std::io::ErrorKind;
 use std::io;
 use std::io::Read;
@@ -12,7 +12,7 @@ mod ch03;
 mod ch04;
 mod ch05;
 mod ch06;
-
+mod ch07;
 mod ch08;
 mod ch09;
 mod ch10;
@@ -36,8 +36,10 @@ fn main() {
 //    ch05::ch05_03_method_syntax();
 
 //    ch06::ch06_01_defining_an_enum();
+//    ch06::ch06_02_match();
 //    ch06::ch06_03_if_let();
 
+//    ch07::main()
 
 //    ch08::ch08_01_vectors();
 //    ch08::ch08_02_strings();

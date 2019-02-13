@@ -3,6 +3,7 @@
 
 pub fn ch06_01_defining_an_enum() {
     {
+        #[derive(Debug)]
         enum IpAddrKind {
             V4,
             // 枚举的成员
@@ -15,6 +16,7 @@ pub fn ch06_01_defining_an_enum() {
 
 
         // 关联结构体
+        #[derive(Debug)]
         struct IpAddr {
             kind: IpAddrKind,
             address: String,
@@ -29,6 +31,9 @@ pub fn ch06_01_defining_an_enum() {
             kind: IpAddrKind::V6,
             address: String::from("::1"),
         };
+
+        println!("{:#?}",home);
+        println!("{:#?}",loopback);
     }
 
 
@@ -113,6 +118,99 @@ pub fn ch06_01_defining_an_enum() {
     }
 }
 
+pub fn ch06_02_match(){
+    // match 控制流运算符
+
+    // 当 match 表达式执行时，它将结果值按顺序与每一个分支的模式相比较。如果模式匹配了这个值，这个模式相关联的代码将被执行。
+    // 如果模式并不匹配这个值，将继续执行下一个分支
+    {
+        enum Coin {
+            Penny,
+            Nickel,
+            Dime,
+            Quarter,
+        }
+        fn value_in_cents(coin: Coin) -> u32 {
+            match coin {
+                Coin::Penny => {
+                    println!("Lucky penny!");
+                    1
+                },
+                Coin::Nickel => 5,
+                Coin::Dime => 10,
+                Coin::Quarter => 25,
+            }
+        }
+    }
+
+    // 绑定值的模式
+    {
+
+        #[derive(Debug)]
+        enum UsState {
+            Alabama,
+            Alaska,
+            // --snip--
+        }
+
+        // 嵌套枚举
+        enum Coin {
+            Penny,
+            Nickel,
+            Dime,
+            Quarter(UsState),
+        }
+        fn value_in_cents(coin: Coin) -> u32 {
+            match coin {
+                Coin::Penny => 1,
+                Coin::Nickel => 5,
+                Coin::Dime => 10,
+                Coin::Quarter(state) => {
+                    println!("State quarter from {:?}!", state);
+                    25
+                },
+            }
+        }
+
+        println!("{}",value_in_cents(Coin::Quarter(UsState::Alaska)))
+    }
+
+    // 匹配Option<T>
+    {
+        fn plus_one(x:Option<i32>) -> Option<i32>{
+            match x{
+                None => None,
+                Some(i) => Some(i + 1)
+
+            }
+        }
+        let five = Some(5);
+        let six = plus_one(five);
+        let none = plus_one(None);
+    }
+
+    // 匹配是穷尽的
+    {
+        // 必须每个枚举都必须要有 执行的分支 或者有一个 _ 通配符 默认
+        let some_u8_value = 0u8;
+        // match 匹配一个 值而不是枚举的时候就一定要有一个 _ 通配符
+        match some_u8_value {
+            1 => println!("one"),
+            3 => println!("three"),
+            5 => println!("five"),
+            7 => println!("seven"),
+            _ => (),
+        }
+
+    }
+
+
+
+
+
+
+}
+
 pub fn ch06_03_if_let() {
     // if let 简单控制流
     // if let 语法让我们以一种不那么冗长的方式结合 if 和 let，
@@ -131,5 +229,23 @@ pub fn ch06_03_if_let() {
     // 一次 只匹配一种类型 并且忽略其他所有的值
     if let Some(3) = some_u8_value {
         println!("three");
+    }
+    // 可以在 if let 中包含一个 else
+    // lse 块中的代码与 match 表达式中的 _ 分支块中的代码相同，这样的 match 表达式就等同于 if let 和 else
+    {
+
+        let mut count = 0;
+//        match coin {
+//            Coin::Quarter(state) => println!("State quarter from {:?}!", state),
+//            _ => count += 1,
+//        }
+    }
+    {
+        let mut count = 0;
+//        if let Coin::Quarter(state) = coin {
+//            println!("State quarter from {:?}!", state);
+//        } else {
+//            count += 1;
+//        }
     }
 }
