@@ -39,6 +39,7 @@ fn main() {
 //    ch06::ch06_02_match();
 //    ch06::ch06_03_if_let();
 
+    // rust 中 文件夹 中的 mod.rs 相当于整个文件夹的索引(类似js 中的index.js)
 //    ch07::main()
 
 //    ch08::ch08_01_vectors();

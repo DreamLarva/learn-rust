@@ -326,6 +326,8 @@ pub fn ch10_02_traits() {
         // 所以需要在 T 的 trait bound 中指定 PartialOrd，这样 largest 函数可以用于任何可以比较大小的类型的 slice。
         // 像 i32 和 char 这样的类型是已知大小的并可以储存在栈上，所以他们实现了 Copy trait。
         // 当我们将 largest 函数改成使用泛型后，现在 list 参数的类型就有可能是没有实现 Copy trait 的。
+
+        // &[T] : 为切片类型 现在的可知的有 String Array Vector
         fn largest1<T: PartialOrd + Copy>(list: &[T]) -> T { // 所以需要 PartialOrd 和 Copy 两个泛型
             let mut largest = list[0];
             for &item in list.iter() {
