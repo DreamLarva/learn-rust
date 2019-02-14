@@ -351,9 +351,26 @@ pub fn ch10_02_traits() {
 
         // 另一种 largest 的实现方式是返回在 slice 中 T 值的引用。
         // 如果我们将函数返回值从 T 改为 &T 并改变函数体使其能够返回一个引用，我们将不需要任何 Clone 或 Copy 的 trait bounds 而且也不会有任何的堆分配。
-        // 尝试自己实现这种替代解决方式吧！
+        fn largest2<T: PartialOrd>(list: &[T]) -> &T { // 所以需要 PartialOrd 和 Copy 两个泛型
+            let mut largest_index:usize = 0;
+            // 存储的是 最大的的值的索引 那就不用保证 T 的值类型能够copy了
+            for index in 0..list.len() - 1 {
+                if list[index] > list[largest_index]{
+                    largest_index = index;
+                }
+            }
+            return &list[largest_index];
+        }
 
-        // todo
+        let number_list = vec![34, 50, 25, 100, 65];
+
+        let result = largest1(&number_list);
+        println!("The largest number is {}", result);
+
+        let char_list = vec!['y', 'm', 'a', 'q'];
+
+        let result = largest1(&char_list);
+        println!("The largest char is {}", result);
     }
     // 通过where 简化代码
     {
@@ -391,7 +408,7 @@ pub fn ch10_02_traits() {
     }
 }
 
-pub fn ch10_03_lifetime_syntax(){
+pub fn ch10_03_lifetime_syntax() {
     // 函数中的泛型生命周期
     /*{
         // 提示文本揭示了返回值需要一个泛型生命周期参数，因为 Rust 并不知道将要返回的引用是指向 x 或 y。
@@ -433,7 +450,9 @@ pub fn ch10_03_lifetime_syntax(){
         let string2 = "xyz";
 
         let result = longest(string1.as_str(), string2);
+//        let result = longest(&string1.as_str(), &string2); // todo 也能够执行 强制类型转换?
         println!("The longest string is {}", result);
+        println!("{},{}", string1,string2);
     }
 
     {
@@ -464,8 +483,5 @@ pub fn ch10_03_lifetime_syntax(){
             .next()
             .expect("Could not find a '.'");
         let i = ImportantExcerpt { part: first_sentence };
-
     }
-
-
 }
