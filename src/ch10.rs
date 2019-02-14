@@ -352,10 +352,10 @@ pub fn ch10_02_traits() {
         // 另一种 largest 的实现方式是返回在 slice 中 T 值的引用。
         // 如果我们将函数返回值从 T 改为 &T 并改变函数体使其能够返回一个引用，我们将不需要任何 Clone 或 Copy 的 trait bounds 而且也不会有任何的堆分配。
         fn largest2<T: PartialOrd>(list: &[T]) -> &T { // 所以需要 PartialOrd 和 Copy 两个泛型
-            let mut largest_index:usize = 0;
+            let mut largest_index: usize = 0;
             // 存储的是 最大的的值的索引 那就不用保证 T 的值类型能够copy了
             for index in 0..list.len() - 1 {
-                if list[index] > list[largest_index]{
+                if list[index] > list[largest_index] {
                     largest_index = index;
                 }
             }
@@ -452,9 +452,10 @@ pub fn ch10_03_lifetime_syntax() {
         let result = longest(string1.as_str(), string2);
 //        let result = longest(&string1.as_str(), &string2); // todo 也能够执行 强制类型转换?
         println!("The longest string is {}", result);
-        println!("{},{}", string1,string2);
+        println!("{},{}", string1, string2);
     }
 
+    // 函数签名中的生命周期注解
     {
         fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
             if x.len() > y.len() {
@@ -474,14 +475,79 @@ pub fn ch10_03_lifetime_syntax() {
         // 较短的 生命周期是 string2 已经结束了 result 引用较短的那个 在这里已经没有了
     }
 
+    // 结构体定义中的生命周期注解
     {
+        // 这个结构体有一个字段，part，它存放了一个字符串 slice，这是一个引用。
+        // 类似于泛型参数类型，必须在结构体名称后面的尖括号中声明泛型生命周期参数
         struct ImportantExcerpt<'a> {
             part: &'a str,
         }
         let novel = String::from("Call me Ishmael. Some years ago...");
-        let first_sentence = novel.split('.')
+        let first_sentence /* :&str */ = novel.split('.')
             .next()
             .expect("Could not find a '.'");
+        // 函数创建了一个 ImportantExcerpt 的实例，它存放了变量 novel 所拥有的 String 的第一个句子的引用。
+        // novel 的数据在 ImportantExcerpt 实例创建之前就存在。
+        // 另外，直到 ImportantExcerpt 离开作用域之后 nove
         let i = ImportantExcerpt { part: first_sentence };
+    }
+
+    // 声明和使用生命周期参数的位置依赖于生命周期参数是否同结构体字段或方法参数和返回值相关。
+    {
+        // 生命周期可省略
+        struct ImportantExcerpt {}
+        impl ImportantExcerpt {
+            fn level(&self) -> i32 {
+                3
+            }
+        }
+//        impl<'a> ImportantExcerpt<'a> {
+//            fn level(&self) -> i32 {
+//                3
+//            }
+//        }
+    }
+    {
+        struct ImportantExcerpt<'a> {
+            part: &'a str
+        }
+
+        impl<'a> ImportantExcerpt<'a> {
+            fn announce_and_return_part(&self, announcement: &str) -> &str {
+                println!("Attention please: {}", announcement);
+                self.part
+            }
+
+//            fn announce_and_return_part(&'a self, announcement: &'a str) -> &'a str {
+//                println!("Attention please: {}", announcement);
+//                self.part
+//            }
+        }
+    }
+
+    // 静态生命周期
+    // 这里有一种特殊的生命周期值得讨论：'static，其生命周期存活于整个程序期间。
+    // 所有的字符串字面值都拥有 'static 生命周期，我们也可以选择像下面这样标注出来：
+    {
+        let s: &'static str = "I have a static lifetime.";
+        // 这个字符串的文本被直接储存在程序的二进制文件中而这个文件总是可用的。因此所有的字符串字面值都是 'static 的。
+    }
+
+    // 结合泛型类型参数 trait bounds 和 生命周期
+    {
+        use std::fmt::Display;
+
+        fn longest_with_an_announcement<'a, T>(x: &'a str, y: &'a str, ann: T) -> &'a str
+            where T: Display
+        {
+            println!("Announcement! {}", ann);
+            if x.len() > y.len() {
+                x
+            } else {
+                y
+            }
+        }
+
+        longest_with_an_announcement("1","2","3");
     }
 }
