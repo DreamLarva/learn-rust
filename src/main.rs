@@ -6,16 +6,19 @@ use std::io::ErrorKind;
 use std::io;
 use std::io::Read;
 
-mod ch01;
-mod ch02;
-mod ch03;
-mod ch04;
-mod ch05;
-mod ch06;
-mod ch07;
-mod ch08;
-mod ch09;
-mod ch10;
+//mod ch01;
+//mod ch02;
+//mod ch03;
+//mod ch04;
+//mod ch05;
+//mod ch06;
+//mod ch07;
+//mod ch08;
+//mod ch09;
+//mod ch10;
+mod ch11_01;
+mod ch11_02;
+
 
 
 fn main() {
@@ -52,7 +55,7 @@ fn main() {
 
 //    ch10::ch10_01_syntax();
 //    ch10::ch10_02_traits();
-    ch10::ch10_03_lifetime_syntax()
+//    ch10::ch10_03_lifetime_syntax();
 
 }
 
