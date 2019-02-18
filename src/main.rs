@@ -1,3 +1,4 @@
+// main.rs 一般使用自己项目的使用 只给自己运行生产用
 #![allow(unused_variables)] // 不对 未使用的变量 warning
 
 use std::collections::HashMap;
@@ -16,10 +17,10 @@ use std::io::Read;
 //mod ch08;
 //mod ch09;
 //mod ch10;
-mod ch11_01;
-mod ch11_02;
-
-
+//mod ch11_01;
+//mod ch11_02;
+//mod ch11_03;
+mod ch12;
 
 fn main() {
 //    ch01::main();
@@ -56,6 +57,8 @@ fn main() {
 //    ch10::ch10_01_syntax();
 //    ch10::ch10_02_traits();
 //    ch10::ch10_03_lifetime_syntax();
+
+    ch12::main();
 
 }
 
