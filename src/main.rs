@@ -20,7 +20,6 @@ use std::io::Read;
 //mod ch11_01;
 //mod ch11_02;
 //mod ch11_03;
-mod ch12;
 
 fn main() {
 //    ch01::main();
@@ -58,7 +57,6 @@ fn main() {
 //    ch10::ch10_02_traits();
 //    ch10::ch10_03_lifetime_syntax();
 
-    ch12::main();
 
 }
 
