@@ -145,7 +145,7 @@ pub fn ch13_01_closures() {
     {
         // 存储值使用HashMap
         struct Cacher<T>
-            where T: Fn(u32) -> PartialOrd
+            where T: Fn(u32) -> u32
         {
             calculation: T,
             value: HashMap<u32, u32>,
