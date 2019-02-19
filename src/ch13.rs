@@ -161,7 +161,6 @@ pub fn ch13_01_closures() {
                 }
             }
             fn value(&mut self, arg: u32) -> u32 {
-
                 match self.value.get(&arg) {
                     Some(v) => *v, // v type为 &u32 需要 用 * 解引用
                     None => {
@@ -169,7 +168,6 @@ pub fn ch13_01_closures() {
                         self.value.insert(arg, value);
                         value
                     }
-
                 }
             }
         }
