@@ -184,3 +184,152 @@ pub fn ch13_01_closures() {
         // todo
     }
 }
+
+// 使用迭代器出路元素序列
+pub fn ch13_02_iterators() {
+    // 在 Rust 中，迭代器是惰性的（lazy），这意味着在调用方法使用迭代器之前它都不会有效果。
+    {
+        let v1 = vec![1, 2, 3];
+        let v1_iter = v1.iter();
+        for val in v1_iter {
+            println!("Got: {}", val);
+        }
+    }
+
+    // Iterator trait 和 next 方法
+    // 迭代器起都实现了一个叫做 Iterator 的定义于标准库的trait
+    {
+        trait Iterator {
+            // type Item 和 Self::Item，他们定义了 trait 的 关联类型（associated type）
+            type Item;
+            // next 是 Iterator 实现者被要求定义的唯一方法。
+            // next 一次返回迭代器中的一个项，封装在 Some 中，当迭代器结束时，它返回 None。
+            fn next(&mut self) -> Option<Self::Item>;
+
+            // 此处省略了方法的默认实现
+        }
+        // 注意 v1_iter 需要是可变的：在迭代器上调用 next 方法改变了迭代器中用来记录序列位置的状态。换句
+        // 话说，代码 消费（consume）了，或使用了迭代器。每一个 next 调用都会从迭代器中消费一个项。使用
+        // for 循环时无需使 v1_iter 可变因为 for 循环会获取 v1_iter 的所有权并在后台使 v1_iter 可变。
+
+        // 另外需要注意到从 next 调用中得到的值是 vector 的不可变引用。iter 方法生成一个不可变引用的迭代
+        // 器。如果我们需要一个获取 v1 所有权并返回拥有所有权的迭代器，则可以调用 into_iter 而不是 iter。
+        // 类似的，如果我们希望迭代可变引用，则可以调用 iter_mut 而不是 iter。
+    }
+
+    // 消费迭代器的方法
+    {
+        // Iterator trait 有一系列不同的由标准库提供默认实现的方法
+        let v1 = vec![1, 2, 3];
+
+        let v1_iter = v1.iter();
+
+        let total: i32 = v1_iter.sum();
+        // 调用 sum 之后不再允许使用 v1_iter 因为调用 sum 时它会获取迭代器的所有权。
+
+        assert_eq!(total, 6);
+    }
+
+    // 产生其他迭代器的方法
+    {
+        // Iterator trait 中定义了另一类方法，被称为 迭代器适配器（iterator adaptors），他们允许我们将当
+        // 前迭代器变为不同类型的迭代器。可以链式调用多个迭代器适配器。不过因为所有的迭代器都是惰性的，必
+        // 须调用一个消费适配器方法以便获取迭代器适配器调用的结果。
+        let v1: Vec<i32> = vec![1, 2, 3];
+
+        // collect 方法。这个方法消费迭代器并将结果收集到一个数据结构中。
+        let v2: Vec<_> = v1.iter().map(|x| x + 1).collect();
+
+        assert_eq!(v2, vec![2, 3, 4]);
+    }
+
+    // 使用闭包获取环境
+    {
+        #[derive(PartialEq, Debug)]
+        struct Shoe {
+            size: u32,
+            style: String,
+        }
+        fn shoes_in_my_size(shoes: Vec<Shoe>, shoe_size: u32) -> Vec<Shoe> {
+            shoes.into_iter()
+                .filter(|s| s.size == shoe_size)
+                .collect()
+        }
+
+        #[test]
+        fn filters_by_size() {
+            let shoes = vec![
+                Shoe { size: 10, style: String::from("sneaker") },
+                Shoe { size: 13, style: String::from("sandal") },
+                Shoe { size: 10, style: String::from("boot") },
+            ];
+
+            let in_my_size = shoes_in_my_size(shoes, 10);
+
+            assert_eq!(
+                in_my_size,
+                vec![
+                    Shoe { size: 10, style: String::from("sneaker") },
+                    Shoe { size: 10, style: String::from("boot") },
+                ]
+            );
+        }
+    }
+    // 实现 Iterator  trait 来创建自定义迭代器
+    {
+        struct Counter {
+            count: u32,
+        }
+        impl Counter {
+            fn new() -> Counter {
+                Counter {
+                    count: 0
+                }
+            }
+        }
+        impl Iterator for Counter {
+            type Item = u32;
+            fn next(&mut self) -> Option<Self::Item> {
+                self.count += 1;
+
+                if self.count < 6 {
+                    Some(self.count)
+                } else {
+                    None
+                }
+            }
+        }
+
+        let mut counter = Counter::new();
+
+        assert_eq!(counter.next(), Some(1));
+        assert_eq!(counter.next(), Some(2));
+        assert_eq!(counter.next(), Some(3));
+        assert_eq!(counter.next(), Some(4));
+        assert_eq!(counter.next(), Some(5));
+        assert_eq!(counter.next(), None);
+
+        // 使用自定义的 Iterator trait 方法
+        // 通过定义 next 方法实现 Iterator trait，我们现在就可以使用任何标准库定义的拥有默认实现的
+        // Iterator trait 方法了，因为他们都使用了 next 方法的功能。
+        // 这里是 zip 方法 传入一个 trait IntoIterator的实现 返回一个 Iterator
+        let sum = Counter::new().zip(Counter::new().skip(1)) // 注意 zip 只产生四对值
+            .map(|(a, b)| a * b)
+            .filter(|x| x % 3 == 0)
+            .sum();
+
+        println!("{:?}", sum);
+    }
+}
+
+#[test]
+fn iterator_demonstration() {
+    let v1 = vec![1, 2, 3];
+
+    let mut v1_iter = v1.iter();
+
+    assert_eq!(v1_iter.next(), Some(&1));
+    assert_eq!(v1_iter.next(), Some(&2));
+    assert_eq!(v1_iter.next(), Some(&3));
+    assert_eq!(v1_iter.next(), None);
+}

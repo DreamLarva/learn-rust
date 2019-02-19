@@ -58,7 +58,8 @@ fn main() {
 //    ch10::ch10_02_traits();
 //    ch10::ch10_03_lifetime_syntax();
 
-    ch13::ch13_01_closures();
+//    ch13::ch13_01_closures();
+    ch13::ch13_02_iterators();
 
 
 }
