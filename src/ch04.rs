@@ -1,17 +1,65 @@
-#![allow(unused_variables)] // 不对 未使用的变量 warning
+#![allow(unused_variables)]
 
+// 不对 未使用的变量 warning
+/// 对于rust 一个值在 堆上或者在栈上很重要,这影响了 rust 所有权的相关操作.
+///
+/// 栈和堆都是代码可用的内存,但是他们结构并不相同.
+/// 栈遵循先进先出,是不可能直接在栈中或者底部的.所有存储在栈的数据必须知道类型和长度.
+/// 可变长度的数据需要存在堆中.在堆中储存数据,会申请以一定的空间,内存分配器会找一块够啊大的内存
+/// 然后注明这块内存已经被使用了,然后返回指针指向内存的位置.从栈中使用堆的数据不需要再分配内存
+/// 因为指针是也确定的类型,且长度一定的.
+///
+/// 当然在栈上的数据 速度快于堆,因为堆不会需要内分配器不需要寻找新的位置来安排内存,
+/// 栈中的数据的存储位置都在栈顶
+///
+/// 当你要用一个方法,所有要传递给方法的值(栈上的,堆上的)和方法中自己的值都会被push到栈上
+/// 方法调用结束时会被pop出去
+///
+/// 所有权 原则
+/// 1. rust 中的每个值都有一个变量 成为 所有者
+/// 2. 同时只能有一个所有者
+/// 3. 当所有个离开作用域,值就会被丢弃
 pub fn ch04_01_what_is_ownership() {
+    {   // s is not valid here, it’s not yet declared
+        let s = "hello";   // s is valid from this point forward
+        // do stuff with s
+    }   // this scope is now over, and s is no longer valid
+    // s 在作用域中 合法 直到离开作用域
+    // s = ""; // 这里调用就报错了
+
+
+    /**
+    用String类型理解 所有权,因为String是存储在堆上的
+     // 字面量声明 声明的字符串是不能修改的 类型为 &str
+     let s0 = "abc";
+     // 使用 String::from (注意有 mut) 可以修改 类型为 String
+      let mut s1 = String::from("hello");
+    */
+
+    // 内存和分配
+    // 对于字符串字面量,在编译的时候就知道了,所以执行的时候执行的是直接是编译好的硬编码的内容
+    // 所以字符串里面量快且方便,但是不可修改
+    // 对于 String 类型,为了可变,会在堆上分配一块内存,这在编译的时候是不知道大小的
+    //  1. 运行时才会申请内存
+    //  2. 我们还需要一在搞完Sting 返回内存给内存分配器
+    // 第一部分在我们调用 String::from 的时候,rust自动帮我们搞定了
+    // 第二部分就不太一样了,有GC的语言会自动回收没有只用的内存.没有GC的,我们就需要手动的
+    // 在需要释放内存的时候释放,时机不能早也不能晚,也不能释放多次
+
+    let x = 5; // 对于字面量大小已经定了
+    let y = x; // 所以堆上面有 2 个 5
+    println!("{}, {}", x, y); // x y 都可以正常使用
+
+    // 数据和变量的交互操作: move
     // 下列代码 报错
-//    let s1 = String::from("hello");
-//    let s2 = s1; // 将s1 移动(move)到 s2 上 同时废弃了 s1
+    let s1 = String::from("hello");
+    let s2 = s1; // 将s1 移动(move)到 s2 上 同时废弃了 s1
+    // println!("{}, world!", s1); // s1 现在并没有值 所以报错了
 
-//    println!("{}, world!", s1); // s1 现在并没有值 所以报错了
-
-    // 克隆 clone
+    // 数据和变量的交互操作:clone 克隆(更加耗时)
     // 使用 s1 关键字 现在s1 和 s2 各有一份内容相同 但是互不相干的内容
     let mut s1 = String::from("hello");
     let mut s2 = s1.clone();
-
     println!("s1 = {}, s2 = {}", s1, s2);
 
     s1.push_str(", world!");
@@ -19,14 +67,14 @@ pub fn ch04_01_what_is_ownership() {
     println!("s1 = {}, s2 = {}", s1, s2);
 
 
-    // 拷贝 Copy
+    // 仅供栈上的数据的操作 : 拷贝 Copy
     // 在栈 上面的数据 是直接拷贝的 因为栈上面的数据是可以知道 内存的大小的
     // 这些类型的值可以 被拷贝
     // 1. 所有整数类型，比如 u32。
     // 2. 布尔类型，bool，它的值是 true 和 false。
     // 3. 所有浮点数类型，比如 f64。
     // 4. 字符类型，char。
-    // 5. 元组，当且仅当其包含的类型也都是 Copy 的时候。比如，(i32, i32) 是 Copy 的，但 (i32, String) 就不是。
+    // 5. 元组，当且仅当其包含的类型也都是 Copy(上面1~4) 的时候。比如，(i32, i32) 是 Copy 的，但 (i32, String) 就不是。
     let x = 5;
     let y = x; // y 拷贝了 x 的值 在函数结束的时候 就各自清理各自的内存
 
@@ -59,12 +107,13 @@ pub fn ch04_01_what_is_ownership() {
     // 返回值 与 作用域
     {
         fn main() {
-            let s1 = gives_ownership();         // gives_ownership 将返回值
+            let s1 = gives_ownership(); // gives_ownership 将返回值
             // 移给 s1
 
-            let s2 = String::from("hello");     // s2 进入作用域
+            let s2 = String::from("hello"); // s2 进入作用域
 
             let s3 = takes_and_gives_back(s2);  // s2 被移动到
+
             // takes_and_gives_back 中,
             // 它也将返回值移给 s3
         } // 这里, s3 移出作用域并被丢弃。s2 也移出作用域，但已被移走，

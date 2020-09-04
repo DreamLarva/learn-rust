@@ -4,6 +4,8 @@
 // 引用 标准库 std 中的 io
 use std::io;
 use std::cmp::Ordering;
+// The Rng trait defines methods that random number generators implement, and this trait must be in scope for us to use those methods.
+// Rng trait 定义了 生成随机数方法的实现,必须引入
 use rand::Rng;
 
 
@@ -11,8 +13,8 @@ pub fn ch02_00_guessing_game_tutorial() {
     println!("Guess the number!");
 
 
-//    let mut temp = rand::thread_rng();
-//    let secret_number = temp.gen_range(1, 100 + 1);
+    // let mut temp = rand::thread_rng();
+    // let secret_number = temp.gen_range(1, 100 + 1);
 
     let secret_number = rand::thread_rng().gen_range(1, 100 + 1); // 这个也能运行
 
@@ -34,6 +36,7 @@ pub fn ch02_00_guessing_game_tutorial() {
         // & 表示这个参数是一个 引用（reference），它允许多处代码访问同一处数据，而无需在内
         // 存中多次拷贝。
         io::stdin()
+            //             入参 借出的可变字符串
             .read_line(&mut guess)
             .expect("Failed to read line");
 

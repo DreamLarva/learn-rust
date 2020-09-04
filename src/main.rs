@@ -7,10 +7,10 @@ use std::io::ErrorKind;
 use std::io;
 use std::io::Read;
 
-//mod ch01;
-//mod ch02;
-//mod ch03;
-//mod ch04;
+// mod ch01;
+// mod ch02;
+// mod ch03;
+mod ch04;
 //mod ch05;
 //mod ch06;
 //mod ch07;
@@ -20,18 +20,18 @@ use std::io::Read;
 //mod ch11_01;
 //mod ch11_02;
 //mod ch11_03;
-mod ch13;
+// mod ch13;
 
 fn main() {
-//    ch01::main();
+    // ch01::main();
 
-//    ch02::ch02_00_guessing_game_tutorial()
+    // ch02::ch02_00_guessing_game_tutorial()
 
-//    ch03::ch03_02_data_types();
-//    ch03::ch03_03_how_functions_work();
-//    ch03::ch03_05_control_flow();
+    // ch03::ch03_02_data_types();
+    // ch03::ch03_03_how_functions_work();
+    // ch03::ch03_05_control_flow();
 
-//    ch04::ch04_01_what_is_ownership();
+   ch04::ch04_01_what_is_ownership();
 //    ch04::ch04_02_references_and_borrowing();
 //    ch04::ch04_03_slices();
 
@@ -59,9 +59,7 @@ fn main() {
 //    ch10::ch10_03_lifetime_syntax();
 
 //    ch13::ch13_01_closures();
-    ch13::ch13_02_iterators();
-
-
+//     ch13::ch13_02_iterators();
 }
 
 
