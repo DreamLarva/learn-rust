@@ -10,8 +10,8 @@ use std::io::Read;
 // mod ch01;
 // mod ch02;
 // mod ch03;
-mod ch04;
-//mod ch05;
+// mod ch04;
+mod ch05;
 //mod ch06;
 //mod ch07;
 //mod ch08;
@@ -31,11 +31,11 @@ fn main() {
     // ch03::ch03_03_how_functions_work();
     // ch03::ch03_05_control_flow();
 
-   ch04::ch04_01_what_is_ownership();
-//    ch04::ch04_02_references_and_borrowing();
-//    ch04::ch04_03_slices();
+    // ch04::ch04_01_what_is_ownership();
+    // ch04::ch04_02_references_and_borrowing();
+    // ch04::ch04_03_slices();
 
-//    ch05::ch05_01_defining_structs();
+    ch05::ch05_01_defining_structs();
 //    ch05::ch05_02_example_structs();
 //    ch05::ch05_03_method_syntax();
 

@@ -28,13 +28,12 @@ pub fn ch04_01_what_is_ownership() {
     // s = ""; // 这里调用就报错了
 
 
-    /**
-    用String类型理解 所有权,因为String是存储在堆上的
-     // 字面量声明 声明的字符串是不能修改的 类型为 &str
-     let s0 = "abc";
-     // 使用 String::from (注意有 mut) 可以修改 类型为 String
-      let mut s1 = String::from("hello");
-    */
+    // 用String类型理解 所有权,因为String是存储在堆上的
+    // 字面量声明 声明的字符串是不能修改的 类型为 &str
+    //  let s0 = "abc";
+    // 使用 String::from (注意有 mut) 可以修改 类型为 String
+    //   let mut s1 = String::from("hello");
+
 
     // 内存和分配
     // 对于字符串字面量,在编译的时候就知道了,所以执行的时候执行的是直接是编译好的硬编码的内容
@@ -223,6 +222,9 @@ pub fn ch04_03_slices() {
     {
         // 另一个没有所有权的数据类型是 slice。
         // slice 允许你引用集合中一段连续的元素序列，而不用引用整个集合。
+
+        // 编写一个函数，该函数接收一个字符串，并返回在该字符串中找到的第一个单词。
+        // 如果函数在该字符串中并未找到空格，则整个字符串就是一个单词，所以应该返回整个字符串。
         fn first_word(s: &String) -> usize {
             // 检查 String 中的值是否为空格，需要用 as_bytes 方法将 String 转化为字节数组
             let bytes = s.as_bytes();
@@ -242,17 +244,26 @@ pub fn ch04_03_slices() {
         s.clear();
 
         // s的值改变了  但是 word 的值 也就是 s的长度没有改变 所以逻辑上存在问题
-//        println!("{},{}",s,word)
+        // println!("{},{}", s, word)
     }
     // 字符串 slice（string slice）
     {
         let s = String::from("hello world");
         // start..end 语法代表一个以 start 开头并一直持续到但不包含 end 的 range
         // 如果需要包含 end，可以使用 ..=
+        // 从头开始可以不写 0 如 &s[..5] 为 0 ~ 5
+        // 到尾部结束 可以不写右侧的数字 如果 &[5..] 为 5 到 尾部
+        // 都不写 就是 取全部 [..]
         let hello = &s[0..5];
         let world = &s[6..11];
+
+        // 字符串 slice range 的索引必须位于有效的 UTF-8 字符边界内，
+        // 如果尝试从一个多字节字符的中间位置创建字符串 slice，则程序将会因错误而退出。
+        // 出于介绍字符串 slice 的目的，本部分假设只使用 ASCII 字符集；
+        // 第八章的 “使用字符串存储 UTF-8 编码的文本” 部分会更加全面的讨论 UTF-8 处理问题。
     }
     {
+        // 传入切片类型 返回 切片
         let s = String::from("hello world");
 
         fn first_word(s: &String) -> &str { // & str 切片类型
@@ -267,13 +278,15 @@ pub fn ch04_03_slices() {
             &s[..] // 返回切片
         }
         let word = first_word(&s);
-        // s.clear(); // 添加这句就会报错 因为 first_word 函数有一个 不可变的引用 并且返回一个切片 那么就不能再修改 s了
+        // 当拥有某值的不可变引用时，就不能再获取一个可变引用。
+        // 因为 clear 需要清空 String，它尝试获取一个可变引用。Rust不允许这样做，因而编译失败。
+        // s.clear();
 
         println!("the first word is: {}", word);
     }
     {
-        // 传入切片类型
-        fn first_word(s: &str) -> &str { // & str 切片类型
+        // 传入切片类型 返回 切片
+        fn first_word(s: &str) -> &str {
             let bytes = s.as_bytes();
 
             for (i, &item) in bytes.iter().enumerate() {
