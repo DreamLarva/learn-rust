@@ -156,24 +156,30 @@ pub fn ch04_02_references_and_borrowing() {
 
         // 声明就报错
         // 因为 *借用* 的值, (默认）不允许修改引用的值。
-//        fn change(some_string: &String) {
-//            some_string.push_str(", world");
-//        }
+        // fn change(some_string: &String) {
+        //     some_string.push_str(", world");
+        // }
     }
 
     // 可变引用
     // 如果引用的变量 可变 那么借用的之后 也是可变的
     // 不过可变引用有一个很大的限制：在特定作用域中的特定数据有且只有一个可变引用(避免数据竞争)
     // 可能引起数据竞争的 行为:
-    // 两个或更多指针同时访问同一数据。
-    // 至少有一个指针被用来写入数据。
-    // 没有同步数据访问的机制。
+    //  两个或更多指针同时访问同一数据。
+    //  至少有一个指针被用来写入数据。
+    //  没有同步数据访问的机制。
     {
         fn main() {
             let mut s = String::from("hello");
 
+            // 可以两个 因为不是同时的 且不是同时保有 s 的
             change(&mut s);
+            change(&mut s);
+
+            println!("{}", s)
         }
+
+        main();
 
         fn change(some_string: &mut String) {
             some_string.push_str(", world");
@@ -189,32 +195,32 @@ pub fn ch04_02_references_and_borrowing() {
 
         let r2 = &mut s;
     }
-    // 我们 也 不能在拥有不可变引用的同时拥有可变引用。
+    // 我们 也不能在拥有不可变引用的同时拥有可变引用。
     // 因为已经使用的不可变引用的 部分 一定不希望出现 在可变引用使值发生改变
     //
     {
-//        let mut s = String::from("hello");
-//
-//        let r1 = &s; // no problem
-//        let r2 = &s; // no problem
-//        let r3 = &mut s; // BIG PROBLEM
+       let mut s = String::from("hello");
 
-//        println!("{}, {}, and {}", r1, r2, r3);
+       let r1 = &s; // no problem
+       let r2 = &s; // no problem
+       let r3 = &mut s; // BIG PROBLEM
+
+       // println!("{}, {}, and {}", r1, r2, r3);
     }
     // 在具有指针的语言中，很容易通过释放内存时保留指向它的指针而错误地生成一个 悬垂指针（dangling pointer），所谓悬垂指针是其指向的内存可能已经被分配给其它持有者。
     // 相比之下，在 Rust 中编译器确保引用永远也不会变成悬垂状态：当你拥有一些数据的引用，编译器确保数据不会在其引用之前离开作用域。
     {
-//        fn main() {
-//            let reference_to_nothing = dangle();
-//        }
-
-//        fn dangle() -> &String {
-//            let s = String::from("hello");
-//
-//            &s
-//            // s 到这里离开作用域 被丢弃
-//            // 这样引用的 s 也失效了
-//        }
+       // fn main() {
+       //     let reference_to_nothing = dangle();
+       // }
+       //
+       // fn dangle() -> &String {
+       //     let s = String::from("hello");
+       //
+       //     &s
+       //     // s 到这里离开作用域 被丢弃
+       //     // 这样引用的 s 也失效了
+       // }
     }
 }
 
@@ -264,7 +270,7 @@ pub fn ch04_03_slices() {
     }
     {
         // 传入切片类型 返回 切片
-        let s = String::from("hello world");
+        let mut s = String::from("hello world");
 
         fn first_word(s: &String) -> &str { // & str 切片类型
             let bytes = s.as_bytes();

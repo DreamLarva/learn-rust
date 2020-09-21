@@ -65,17 +65,17 @@ mod sound2; // 需要 sound2.rs 在其中包含 sound2 文件夹内容 模块内
 
 
 pub fn main() {
-// 路径来引用模块树种的项
-// 路径 可以有两种形式：
-// 绝对路径（absolute path）从 crate 根开始，以 crate 名或者字面值 crate 开头。
-// 相对路径（relative path）从当前模块开始，以 self、super 或当前模块的标识符开头。
-// 绝对路径和相对路径都后跟一个或多个由双冒号（::）分割的标识符。 类似于 /
+    // 路径来引用模块树种的项
+    // 路径 可以有两种形式：
+    // 绝对路径（absolute path）从 crate 根开始，以 crate 名或者字面值 crate 开头。
+    // 相对路径（relative path）从当前模块开始，以 self、super 或当前模块的标识符开头。
+    // 绝对路径和相对路径都后跟一个或多个由双冒号（::）分割的标识符。 类似于 /
 
-// 绝对路径
-//    crate::sound::instrument::clarinet(); // main.rs 中路径
+    // 绝对路径
+    // crate::sound::instrument::clarinet(); // main.rs 中路径
     self::sound::instrument::clarinet(); // 独立模块中的路径
 
-// 相对路径
+    // 相对路径
     sound::instrument::clarinet();
 
     // 另外注意因为 plant::Vegetable 有私有字段，需要提供一个公有的关联函数来构建 Vegetable 的实例（这里使用了传统的名称 new）。
@@ -93,7 +93,7 @@ pub fn main() {
 
     // 使用use 关键字将名称引入作用域
     // use crate::sound::instrument; // 在main.js 中使用的路劲
-     use self::sound::instrument; // 在独立的mod 中使用的路劲
+    use self::sound::instrument; // 在独立的mod 中使用的路劲
 
     // 在作用域中增加 use 和 路径类似于在文件系统中创建软连接(符号链接,symbolic link).
     // 通过crate根增加 use crate::sound::instrument，现在 instrument 在作用域中就是有效的名称了，如同它被定义于 crate 根一样。
@@ -193,5 +193,4 @@ pub fn main() {
 
     // 通过模块分割近不同文件
     sound2::instrument::clarinet()
-
 }

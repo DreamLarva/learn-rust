@@ -64,19 +64,66 @@ pub fn ch05_01_defining_structs() {
         */
     }
 
+    // 使用没有命名字段的元组结构体来创建不同的类型 （tuple structs）
+    // 既然是元祖 当然可以包含不同的类型
+    // 注意就算是两个 元祖结构体的每个类型都相同,也是连个不同的类型 (这是元祖的特性啦)
+    {
+        struct Color(i32, i32, i32);
+        struct Point(i32, i32, i32);
+        struct AnotherTupleStruct(i8, i16, i32);
+
+        let black = Color(0, 0, 0);
+        let origin = Point(1, 0, 0);
+        // black 和 origin 类型不同  ; origin 并不能传递 类型是 Color 的
+
+        // 取值和 元祖一样
+        // println!("{}", origin.0);
+        // println!("{}", origin.1);
+
+        // todo 怎么没法解构呢 x 没法判断类型
+        let (x) = &origin;
+    }
+
+
     // 没有任何字段类单元结构体
     // 称为 类单元结构体
+
+    struct NoDataStruct;
+    // 因为它们类似于 ()，即 unit 类型。
+
+    // 结构体数据的所有权
     {
-//        struct User {
-//            username: &str, // 报错 需要生命周期
-//            email: &str,    // 报错 需要生命周期
-//            sign_in_count: u64,
-//            active: bool,
-//        }
+        // struct User {
+        //     username: &str,
+        //     // 报错 需要生命周期
+        //     email: &str,
+        //     // 报错 需要生命周期
+        //     sign_in_count: u64,
+        //     active: bool,
+        // }
+
+        // 需要添加所有权
+        struct User<'a> {
+            username: &'a str,
+            email: &'a str,
+            sign_in_count: u64,
+            active: bool,
+        }
+
+        let user1 = User {
+            email: "someone@example.com",
+            username: "someusername123",
+            active: true,
+            sign_in_count: 1,
+        };
     }
 }
 
 pub fn ch05_02_example_structs() {
+    // 需求
+    // rectangles 的二进制程序，它获取以像素为单位的长方形的宽度和高度，
+    // 并计算出长方形的面积
+
     // 原版
     {
         fn main() {
@@ -95,7 +142,19 @@ pub fn ch05_02_example_structs() {
 
         main();
     }
+    // 使用元组 重构
+    {
+        fn main() {
+            let rect1 = (30, 50);
+            println!("The area of the rectangle is {} square pixels.", area(rect1))
+        }
 
+        fn area(dimensions: (u32, u32)) -> u32 {
+            dimensions.0 * dimensions.1
+        }
+    }
+
+    // 使用结构体重构
     {
         // Rust 为我们提供了很多可以通过 derive 注解来使用的 trait，他们可以为我们的自定义类型增加实用的行为。
         // 附录 C 中列出了这些 trait 和行为。
@@ -135,6 +194,18 @@ pub fn ch05_03_method_syntax() {
             fn area(&self) -> u32 { // &self 当然是借用的 不允许修改原始的实例
                 self.width * self.height
             }
+
+            // 修改结构体的属性
+            fn set_height(&mut self, new_value: u32) {
+                self.height = new_value
+            }
+
+            fn set_weight(&mut self, new_value: u32) {
+                self.width = new_value
+            }
+            // self 作为第一个参数来使方法获取实例的所有权是很少见的；
+            // 这种技术通常用在当方法将 self 转换成别的实例的时候，这时我们想要防止调用者在转换之后使用原始的实例。
+            fn test1(self) {}
         }
 
         let rect1 = Rectangle { width: 30, height: 50 };
@@ -149,6 +220,10 @@ pub fn ch05_03_method_syntax() {
             //(&p1).distance(&p2);
             rect1.area()
         );
+
+        let mut rect2 = Rectangle { width: 30, height: 50 };
+        rect2.set_height(100);
+        println!("rect2 height : {}", rect2.height)
     }
 
     // 带有更多参数的方法
@@ -177,6 +252,10 @@ pub fn ch05_03_method_syntax() {
     }
 
     // 关联函数
+    // impl 块的另一个有用的功能是：允许在 impl 块中定义 不 以 self 作为参数的函数。
+    // 这被称为 关联函数（associated functions），因为它们与结构体相关联。
+    // 它们仍是函数而不是方法，因为它们并不作用于一个结构体的实例。
+    // 类似于 js 的静态方法
     {
         #[derive(Debug)]
         struct Rectangle {
@@ -184,12 +263,12 @@ pub fn ch05_03_method_syntax() {
             height: u32,
         }
 
-        // impl 块的另一个有用的功能是：允许在 impl 块中定义 不 以 self 作为参数的函数。
         impl Rectangle {
             fn square(size: u32) -> Rectangle {
                 Rectangle { width: size, height: size }
             }
         }
+        // 使用结构体名和 :: 语法来调用这个关联函数
         println!("{:?}", Rectangle::square(100)); // 关联方法 的调用方式
     }
 

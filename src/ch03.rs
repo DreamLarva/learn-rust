@@ -236,7 +236,7 @@ pub fn ch03_05_control_flow() {
 
     // 使用 range 来不用声明新的变量 使用循环的次数
     // .rev 翻转 可迭代的范围数据
-    for number in (1..4).rev() {≤
+    for number in (1..4).rev() {
         println!("{}!", number);
     }
     println!("LIFTOFF!!!");

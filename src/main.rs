@@ -11,9 +11,9 @@ use std::io::Read;
 // mod ch02;
 // mod ch03;
 // mod ch04;
-mod ch05;
-//mod ch06;
-//mod ch07;
+// mod ch05;
+// mod ch06;
+mod ch07;
 //mod ch08;
 //mod ch09;
 //mod ch10;
@@ -35,16 +35,16 @@ fn main() {
     // ch04::ch04_02_references_and_borrowing();
     // ch04::ch04_03_slices();
 
-    ch05::ch05_01_defining_structs();
-//    ch05::ch05_02_example_structs();
-//    ch05::ch05_03_method_syntax();
+    // ch05::ch05_01_defining_structs();
+    // ch05::ch05_02_example_structs();
+    // ch05::ch05_03_method_syntax();
 
-//    ch06::ch06_01_defining_an_enum();
-//    ch06::ch06_02_match();
-//    ch06::ch06_03_if_let();
+    // ch06::ch06_01_defining_an_enum();
+    // ch06::ch06_02_match();
+    // ch06::ch06_03_if_let();
 
     // rust 中 文件夹 中的 mod.rs 相当于整个文件夹的索引(类似js 中的index.js)
-//    ch07::main()
+    ch07::main()
 
 //    ch08::ch08_01_vectors();
 //    ch08::ch08_02_strings();
