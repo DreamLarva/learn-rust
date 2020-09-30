@@ -29,7 +29,6 @@ pub fn ch05_01_defining_structs() {
 
     user2.email = String::from("anotheremail@example.com");
 
-
     // 变量名 如果 与 字段 同名可以使用简写 同es6
     fn build_user(email: String, username: String) -> User {
         User {
@@ -83,7 +82,6 @@ pub fn ch05_01_defining_structs() {
         // todo 怎么没法解构呢 x 没法判断类型
         let (x) = &origin;
     }
-
 
     // 没有任何字段类单元结构体
     // 称为 类单元结构体
@@ -146,7 +144,10 @@ pub fn ch05_02_example_structs() {
     {
         fn main() {
             let rect1 = (30, 50);
-            println!("The area of the rectangle is {} square pixels.", area(rect1))
+            println!(
+                "The area of the rectangle is {} square pixels.",
+                area(rect1)
+            )
         }
 
         fn area(dimensions: (u32, u32)) -> u32 {
@@ -164,7 +165,10 @@ pub fn ch05_02_example_structs() {
             width: u32,
             height: u32,
         }
-        let rect1 = Rectangle { width: 30, height: 50 };
+        let rect1 = Rectangle {
+            width: 30,
+            height: 50,
+        };
 
         println!("{:?}", rect1);
         println!(
@@ -191,7 +195,8 @@ pub fn ch05_03_method_syntax() {
         // 为了使函数定义于 Rectangle 的上下文中，我们开始了一个 impl 块（impl 是 implementation 落实 实现 的缩写）
         // 并将签名中的第一个（在这里也是唯一一个）参数和函数体中其他地方的对应参数改成 self
         impl Rectangle {
-            fn area(&self) -> u32 { // &self 当然是借用的 不允许修改原始的实例
+            fn area(&self) -> u32 {
+                // &self 当然是借用的 不允许修改原始的实例
                 self.width * self.height
             }
 
@@ -208,7 +213,10 @@ pub fn ch05_03_method_syntax() {
             fn test1(self) {}
         }
 
-        let rect1 = Rectangle { width: 30, height: 50 };
+        let rect1 = Rectangle {
+            width: 30,
+            height: 50,
+        };
         println!(
             "The area of the rectangle is {} square pixels.",
             // Rust 有一个叫 自动引用和解引用（automatic referencing and dereferencing）的功能。
@@ -221,7 +229,10 @@ pub fn ch05_03_method_syntax() {
             rect1.area()
         );
 
-        let mut rect2 = Rectangle { width: 30, height: 50 };
+        let mut rect2 = Rectangle {
+            width: 30,
+            height: 50,
+        };
         rect2.set_height(100);
         println!("rect2 height : {}", rect2.height)
     }
@@ -235,7 +246,8 @@ pub fn ch05_03_method_syntax() {
         }
 
         impl Rectangle {
-            fn area(&self) -> u32 { // &self 当然是借用的 不允许修改原始的实例
+            fn area(&self) -> u32 {
+                // &self 当然是借用的 不允许修改原始的实例
                 self.width * self.height
             }
             fn can_hold(&self, other: &Rectangle) -> bool {
@@ -243,9 +255,18 @@ pub fn ch05_03_method_syntax() {
             }
         }
 
-        let rect1 = Rectangle { width: 30, height: 50 };
-        let rect2 = Rectangle { width: 10, height: 40 };
-        let rect3 = Rectangle { width: 60, height: 45 };
+        let rect1 = Rectangle {
+            width: 30,
+            height: 50,
+        };
+        let rect2 = Rectangle {
+            width: 10,
+            height: 40,
+        };
+        let rect3 = Rectangle {
+            width: 60,
+            height: 45,
+        };
 
         println!("Can rect1 hold rect2? {}", rect1.can_hold(&rect2));
         println!("Can rect1 hold rect3? {}", rect1.can_hold(&rect3));
@@ -265,7 +286,10 @@ pub fn ch05_03_method_syntax() {
 
         impl Rectangle {
             fn square(size: u32) -> Rectangle {
-                Rectangle { width: size, height: size }
+                Rectangle {
+                    width: size,
+                    height: size,
+                }
             }
         }
         // 使用结构体名和 :: 语法来调用这个关联函数
@@ -282,7 +306,10 @@ pub fn ch05_03_method_syntax() {
 
         impl Rectangle {
             fn square(size: u32) -> Rectangle {
-                Rectangle { width: size, height: size }
+                Rectangle {
+                    width: size,
+                    height: size,
+                }
             }
         }
 

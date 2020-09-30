@@ -3,20 +3,21 @@
 
 use std::collections::HashMap;
 use std::fs::{self, File};
-use std::io::ErrorKind;
 use std::io;
+use std::io::ErrorKind;
 use std::io::Read;
+use std::ops::{Add, Index};
 
-// mod ch01;
-// mod ch02;
-// mod ch03;
-// mod ch04;
-// mod ch05;
-// mod ch06;
+mod ch01;
+mod ch02;
+mod ch03;
+mod ch04;
+mod ch05;
+mod ch06;
 mod ch07;
-//mod ch08;
-//mod ch09;
-//mod ch10;
+mod ch08;
+mod ch09;
+mod ch10;
 //mod ch11_01;
 //mod ch11_02;
 //mod ch11_03;
@@ -44,23 +45,20 @@ fn main() {
     // ch06::ch06_03_if_let();
 
     // rust 中 文件夹 中的 mod.rs 相当于整个文件夹的索引(类似js 中的index.js)
-    ch07::main()
+    // ch07::main()
 
-//    ch08::ch08_01_vectors();
-//    ch08::ch08_02_strings();
-//    ch08::ch08_03_hash_maps();
+    // ch08::ch08_01_vectors();
+    // ch08::ch08_02_strings();
+    // ch08::ch08_03_hash_maps();
 
-//    ch09::ch09_01_unrecoverable_errors_with_panic();
-//    ch09::ch09_02_recoverable_errors_with_result();
-//    ch09::ch09_03_to_panic_or_not_to_panic();
+    // ch09::ch09_01_unrecoverable_errors_with_panic();
+    // ch09::ch09_02_recoverable_errors_with_result();
+    // ch09::ch09_03_to_panic_or_not_to_panic();
 
-//    ch10::ch10_01_syntax();
-//    ch10::ch10_02_traits();
-//    ch10::ch10_03_lifetime_syntax();
+    ch10::ch10_01_syntax();
+    //    ch10::ch10_02_traits();
+    //    ch10::ch10_03_lifetime_syntax();
 
-//    ch13::ch13_01_closures();
-//     ch13::ch13_02_iterators();
+    //    ch13::ch13_01_closures();
+    //     ch13::ch13_02_iterators();
 }
-
-
-

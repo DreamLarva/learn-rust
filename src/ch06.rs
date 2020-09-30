@@ -1,6 +1,5 @@
 #![allow(unused_variables)] // 不对 未使用的变量 warning
 
-
 use std::os::macos::raw::stat;
 
 pub fn ch06_01_defining_an_enum() {
@@ -15,7 +14,6 @@ pub fn ch06_01_defining_an_enum() {
         // 创建实例
         let four = IpAddrKind::V4;
         let six = IpAddrKind::V6;
-
 
         // 关联结构体
         #[derive(Debug)]
@@ -37,7 +35,6 @@ pub fn ch06_01_defining_an_enum() {
         println!("{:#?}", home);
         println!("{:#?}", loopback);
     }
-
 
     // 简洁的关联方法
     {
@@ -126,10 +123,8 @@ pub fn ch06_01_defining_an_enum() {
     }
 }
 
-
 // match 控制流运算符
 pub fn ch06_02_match() {
-
     // 当 match 表达式执行时，它将结果值按顺序与每一个分支的模式相比较。
     // 如果模式匹配了这个值，这个模式相关联的代码将被执行。
     // 如果模式并不匹配这个值，将继续执行下一个分支
@@ -188,12 +183,10 @@ pub fn ch06_02_match() {
                 Coin::Penny => 1,
                 Coin::Nickel => 5,
                 Coin::Dime => 10,
-                Coin::Quarter(state) => {
-                    match state {
-                        UsState::Alabama => 25,
-                        UsState::Alaska => 50
-                    }
-                }
+                Coin::Quarter(state) => match state {
+                    UsState::Alabama => 25,
+                    UsState::Alaska => 50,
+                },
             }
         }
 
@@ -207,7 +200,7 @@ pub fn ch06_02_match() {
         fn plus_one(x: Option<i32>) -> Option<i32> {
             match x {
                 None => None,
-                Some(i) => Some(i + 1)
+                Some(i) => Some(i + 1),
             }
         }
         let five = Some(5);
@@ -235,14 +228,13 @@ pub fn ch06_02_match() {
 enum UsState {
     Alabama,
     Alaska,
-    A1(B1)
-    // --snip--
+    A1(B1), // --snip--
 }
 
 #[derive(Debug)]
-enum B1{
+enum B1 {
     B2,
-    B3
+    B3,
 }
 
 // 嵌套枚举
@@ -272,7 +264,6 @@ pub fn ch06_03_if_let() {
     if let Some(3) = some_u8_value {
         println!("three");
     }
-
 
     // 可以在 if let 中包含一个 else
     // else 块中的代码与 match 表达式中的 _ 分支块中的代码相同，这样的 match 表达式就等同于 if let 和 else

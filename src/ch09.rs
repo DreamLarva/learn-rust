@@ -1,26 +1,38 @@
 #![allow(unused_variables)] // 不对 未使用的变量 warning
 
-
 use std::collections::HashMap;
+use std::error::Error;
 use std::fs::{self, File};
-use std::io::ErrorKind;
+use std::future::Future;
 use std::io;
+use std::io::ErrorKind;
 use std::io::Read;
 
-
+//  panic!宏。当执行这个宏时，程序会打印出一个错误信息，展开并清理栈数据，然后接着退出。
 pub fn ch09_01_unrecoverable_errors_with_panic() {
     // !panic 与不可恢复错误
     {
         // panic!("crash and burn"); // 抛出错误
     }
+    //  当出现 panic 时，程序默认会开始 展开（unwinding），
+    // 这意味着 Rust 会回溯栈并清理它遇到的每一个函数的数据，不过这个回溯并清理的过程有很多工作。
+    // 另一种选择是直接 终止（abort），这会不清理数据就退出程序。
+    // 那么程序所使用的内存需要由操作系统来清理。
+    // 如果你需要项目的最终二进制文件越小越好，
+    // panic 时通过在 Cargo.toml 的 [profile] 部分增加 panic = 'abort'，可以由展开切换为终止。
+    // 例如，如果你想要在release模式中 panic 时直接终止：
+    // [profile.release]
+    // panic = 'abort'
+
+    let v = vec![1, 2, 3];
+    // v[99]; // panic
 }
 
 pub fn ch09_02_recoverable_errors_with_result() {
-
-    //    enum Result<T, E> {
-//        Ok(T), // 成功的类型
-//        Err(E), // 错误的类型
-//    }
+    // enum Result<T, E> {
+    //     Ok(T), // 成功的类型
+    //     Err(E), // 错误的类型
+    // }
 
     /*{
         let f = File::open("hello.txt");
@@ -41,14 +53,14 @@ pub fn ch09_02_recoverable_errors_with_result() {
                 ErrorKind::NotFound => match File::create("hello.txt") {
                     Ok(fc) => fc,
                     Err(e) => panic!("Tired to create file but there is a problem: {:?}", e),
-                }
+                },
                 other_error => panic!("there was a problem opening the file: {:?}", other_error),
-            }
+            },
         };
     }
     // 个更老练的 Rustacean 可能会这么写
     {
-        let f = File::open("hello.txt").map_err(|error| {
+        let f = File::open("hello.txt").unwrap_or_else(|error| {
             if error.kind() == ErrorKind::NotFound {
                 File::create("hello.txt").unwrap_or_else(|error| {
                     panic!("Tried to create file but there was a problem: {:?}", error);
@@ -63,10 +75,10 @@ pub fn ch09_02_recoverable_errors_with_result() {
     {
         // 如果 Result 值是成员 Ok，unwrap 会返回 Ok 中的值。
         // 如果 Result 是成员 Err，unwrap 会为我们调用 panic!。
-//         let f = File::open("hello1.txt").unwrap();
+        let f = File::open("hello1.txt").unwrap();
 
         // 使用 expect 而不是 unwrap 并提供一个好的错误信息可以表明你的意图并更易于追踪 panic 的根源。
-//        let f = File::open("hello1.txt").expect("Failed to open hello.txt");
+        let f = File::open("hello1.txt").expect("Failed to open hello.txt");
     }
 
     // 传播错误
@@ -76,28 +88,42 @@ pub fn ch09_02_recoverable_errors_with_result() {
         fn read_username_from_file() -> Result<String, io::Error> {
             let f = File::open("hello.txt");
 
-            let mut f = match f { // 如果没有文件就直接报错
+            let mut f = match f {
+                // 如果没有文件就直接报错
                 Ok(file) => file,
                 Err(e) => return Err(e),
             };
 
             let mut s = String::new();
             // 有文件返回的内容
-            match f.read_to_string(&mut s) { // 将读取到的内容 放到 字符串s中
+            match f.read_to_string(&mut s) {
+                // 将读取到的内容 放到 字符串s中
                 Ok(_) => Ok(s),
                 Err(e) => Err(e),
             }
         }
 
-        match read_username_from_file(){
-            Ok(s) => println!("data is: {}",s),
-            Err(e) => panic!("{:?}",e)
+        match read_username_from_file() {
+            Ok(s) => println!("data is: {}", s),
+            Err(e) => panic!("{:?}", e),
         }
     }
 
     // 传播错误的简写 : ?
     {
-        // 在Result 值之后的 ?
+        fn read_username_from_file_origin() -> Result<String, io::Error> {
+            let f = File::open("hello.txt");
+            let mut f = match f {
+                Ok(file) => file,
+                Err(e) => return Err(e),
+            };
+            let mut s = String::new();
+            match f.read_to_string(&mut s) {
+                Ok(_) => Ok(s),
+                Err(e) => Err(e),
+            }
+        }
+        // 在Result 的第二个泛型
         // 如果值是ok 就返回ok 中的值 继续执行
         // 如果是Err 就将Err 中的值作为整个函数的返回值 就像使用了return 的关键字一样
         fn read_username_from_file() -> Result<String, io::Error> {
@@ -106,14 +132,14 @@ pub fn ch09_02_recoverable_errors_with_result() {
             f.read_to_string(&mut s)?;
             Ok(s)
         }
-        match read_username_from_file(){
-            Ok(s) => println!("data is: {}",s),
-            Err(e) => panic!("{:?}",e)
+        match read_username_from_file() {
+            Ok(s) => println!("data is: {}", s),
+            Err(e) => panic!("{:?}", e),
         }
     }
     // 进一步使用链式调用缩短代码 链式调用中也能够是用 ?
     {
-        fn read_username_from_file() -> Result<String,io::Error>{
+        fn read_username_from_file() -> Result<String, io::Error> {
             let mut s = String::new();
             File::open("hello.txt")?.read_to_string(&mut s)?;
             Ok(s)
@@ -129,21 +155,33 @@ pub fn ch09_02_recoverable_errors_with_result() {
 
     // ? 只能被用于返回 Result 的函数
     {
-        // 错误指出只能在返回 Result 的函数中使用 ?。在不返回 Result 的函数中，当调用其他返回 Result 的函数时，需要使用 match 或 Result 的方法之一来处理，而不能用 ? 将潜在的错误传播给代码调用方。
-//        let f = File::open("hello.txt")?;
+        fn main() {
+            // 错误指出只能在返回 Result 的函数中使用 ?。
+            // 在不返回 Result 的函数中，当调用其他返回 Result 的函数时，需要使用 match 或 Result 的方法之一来处理，而不能用 ? 将潜在的错误传播给代码调用方。
+            // let f = File::open("hello.txt")?; // 编译出错
+            // 编译器会直接检查出 外侧的函数的 返回类型 不是 Result 而报错
+        }
     }
+    {
+        // Box<dyn Error> 理解为 任何的错误
+        fn main() -> Result<(), Box<dyn Error>> {
+            let f = File::open("hello.txt")?; // 编译出错
 
+            Ok(())
+        }
+    }
 }
 
-pub fn ch09_03_to_panic_or_not_to_panic(){
+pub fn ch09_03_to_panic_or_not_to_panic() {
     // 示例、代码原型和测试都非常适合 panic
     // 当你编写一个示例来展示一些概念时，在拥有健壮的错误处理代码的同时也会使得例子不那么明确。
-    // 例如，调用一个类似 unwrap 这样可能 panic! 的方法可以被理解为一个你实际希望程序处理错误方式的占位符，它根据其余代码运行方式可能会各不相同。
+    // 例如，调用一个类似 unwrap 这样可能 panic! 的方法可以被理解为一个你实际希望程序处理错误方式的占位符，
+    // 它根据其余代码运行方式可能会各不相同。
     //
-    //类似地，在我们准备好决定如何处理错误之前，unwrap和expect方法在原型设计时非常方便。
+    // 类似地，在我们准备好决定如何处理错误之前，unwrap和expect方法在原型设计时非常方便。
     // 当我们准备好让程序更加健壮时，它们会在代码中留下清晰的标记。
     //
-    //如果方法调用在测试中失败了，我们希望这个测试都失败，即便这个方法并不是需要测试的功能。
+    // 如果方法调用在测试中失败了，我们希望这个测试都失败，即便这个方法并不是需要测试的功能。
     // 因为 panic! 是测试如何被标记为失败的，调用 unwrap 或 expect 就是应该发生的事情。
 
     // 当我们比编译器知道更多的情况
@@ -155,7 +193,7 @@ pub fn ch09_03_to_panic_or_not_to_panic(){
     {
         use std::net::IpAddr;
         // 硬编码的字符
-        let home: IpAddr = "127.0.0.1".parse().unwrap(); // 我们知道绝对不会报错 但是编译器不知道仍然返回是Result
+        let home: IpAddr = "127.0.0.1".parse().unwrap(); // 我们知道绝对不会报错 但是编译器不知道仍然返回是Result 所以用 unwrap 而不是 ?
     }
 
     // 错误处理知道原则
@@ -189,5 +227,4 @@ pub fn ch09_03_to_panic_or_not_to_panic(){
     // ，而且程序期望它是 有值 的并且不是 空值。你的代码无需处理 Some 和 None 这两种情况，它只
     // 会有一种情况就是绝对会有一个值。尝试向函数传递空值的代码甚至根本不能编译，所以你的函数在
     // 运行时没有必要判空。另外一个例子是使用像 u32 这样的无符号整型，也会确保它永远不为负。
-
 }

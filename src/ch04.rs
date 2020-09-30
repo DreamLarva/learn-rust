@@ -20,20 +20,19 @@
 /// 2. 同时只能有一个所有者
 /// 3. 当所有个离开作用域,值就会被丢弃
 pub fn ch04_01_what_is_ownership() {
-    {   // s is not valid here, it’s not yet declared
-        let s = "hello";   // s is valid from this point forward
-        // do stuff with s
-    }   // this scope is now over, and s is no longer valid
-    // s 在作用域中 合法 直到离开作用域
-    // s = ""; // 这里调用就报错了
-
+    {
+        // s is not valid here, it’s not yet declared
+        let s = "hello"; // s is valid from this point forward
+                         // do stuff with s
+    } // this scope is now over, and s is no longer valid
+      // s 在作用域中 合法 直到离开作用域
+      // s = ""; // 这里调用就报错了
 
     // 用String类型理解 所有权,因为String是存储在堆上的
     // 字面量声明 声明的字符串是不能修改的 类型为 &str
     //  let s0 = "abc";
     // 使用 String::from (注意有 mut) 可以修改 类型为 String
     //   let mut s1 = String::from("hello");
-
 
     // 内存和分配
     // 对于字符串字面量,在编译的时候就知道了,所以执行的时候执行的是直接是编译好的硬编码的内容
@@ -53,7 +52,7 @@ pub fn ch04_01_what_is_ownership() {
     // 下列代码 报错
     let s1 = String::from("hello");
     let s2 = s1; // 将s1 移动(move)到 s2 上 同时废弃了 s1
-    // println!("{}, world!", s1); // s1 现在并没有值 所以报错了
+                 // println!("{}, world!", s1); // s1 现在并没有值 所以报错了
 
     // 数据和变量的交互操作:clone 克隆(更加耗时)
     // 使用 s1 关键字 现在s1 和 s2 各有一份内容相同 但是互不相干的内容
@@ -64,7 +63,6 @@ pub fn ch04_01_what_is_ownership() {
     s1.push_str(", world!");
     s2.push_str(", hell!");
     println!("s1 = {}, s2 = {}", s1, s2);
-
 
     // 仅供栈上的数据的操作 : 拷贝 Copy
     // 在栈 上面的数据 是直接拷贝的 因为栈上面的数据是可以知道 内存的大小的
@@ -82,23 +80,25 @@ pub fn ch04_01_what_is_ownership() {
     // 所有权 与 函数
     {
         fn main() {
-            let s = String::from("hello");  // s 进入作用域
+            let s = String::from("hello"); // s 进入作用域
 
-            takes_ownership(s);             // s 的值移动到函数里 ...
-            // ... 所以到这里不再有效
+            takes_ownership(s); // s 的值移动到函数里 ...
+                                // ... 所以到这里不再有效
 
-            let x = 5;                      // x 进入作用域
+            let x = 5; // x 进入作用域
 
-            makes_copy(x);                  // x 应该移动函数里，
-            // 但 i32 是 Copy 的，所以在后面可继续使用 x
+            makes_copy(x); // x 应该移动函数里，
+                           // 但 i32 是 Copy 的，所以在后面可继续使用 x
         } // 这里, x 先移出了作用域，然后是 s。但因为 s 的值已被移走，
-        // 所以不会有特殊操作
+          // 所以不会有特殊操作
 
-        fn takes_ownership(some_string: String) { // some_string 进入作用域
+        fn takes_ownership(some_string: String) {
+            // some_string 进入作用域
             println!("{}", some_string);
         } // 这里，some_string 移出作用域并调用 `drop` 方法。占用的内存被释放
 
-        fn makes_copy(some_integer: i32) { // some_integer 进入作用域
+        fn makes_copy(some_integer: i32) {
+            // some_integer 进入作用域
             println!("{}", some_integer);
         } // 这里，some_integer 移出作用域。不会有特殊操作
     }
@@ -107,28 +107,30 @@ pub fn ch04_01_what_is_ownership() {
     {
         fn main() {
             let s1 = gives_ownership(); // gives_ownership 将返回值
-            // 移给 s1
+                                        // 移给 s1
 
             let s2 = String::from("hello"); // s2 进入作用域
 
-            let s3 = takes_and_gives_back(s2);  // s2 被移动到
+            let s3 = takes_and_gives_back(s2); // s2 被移动到
 
             // takes_and_gives_back 中,
             // 它也将返回值移给 s3
         } // 这里, s3 移出作用域并被丢弃。s2 也移出作用域，但已被移走，
-        // 所以什么也不会发生。s1 移出作用域并被丢弃
+          // 所以什么也不会发生。s1 移出作用域并被丢弃
 
-        fn gives_ownership() -> String {             // gives_ownership 将返回值移动给
+        fn gives_ownership() -> String {
+            // gives_ownership 将返回值移动给
             // 调用它的函数
 
             let some_string = String::from("hello"); // some_string 进入作用域.
 
-            some_string                              // 返回 some_string 并移出给调用的函数
+            some_string // 返回 some_string 并移出给调用的函数
         }
 
         // takes_and_gives_back 将传入字符串并返回该值
-        fn takes_and_gives_back(a_string: String) -> String { // a_string 进入作用域
-            a_string  // 返回 a_string 并移出给调用的函数
+        fn takes_and_gives_back(a_string: String) -> String {
+            // a_string 进入作用域
+            a_string // 返回 a_string 并移出给调用的函数
         }
     }
 }
@@ -149,10 +151,11 @@ pub fn ch04_02_references_and_borrowing() {
 
         // 我们将获取引用作为函数参数称为 借用（borrowing）
         // 这里 函数数 的 s 指向 传入的 s1
-        fn calculate_length(s: &String) -> usize { // s 是对 String 的引用
+        fn calculate_length(s: &String) -> usize {
+            // s 是对 String 的引用
             s.len()
-        }// 这里，s 离开了作用域。但因为它并*不拥有*引用值的所有权，
-        // 所以什么也不会发生
+        } // 这里，s 离开了作用域。但因为它并*不拥有*引用值的所有权，
+          // 所以什么也不会发生
 
         // 声明就报错
         // 因为 *借用* 的值, (默认）不允许修改引用的值。
@@ -185,7 +188,6 @@ pub fn ch04_02_references_and_borrowing() {
             some_string.push_str(", world");
         }
 
-
         // 一如既往，可以使用大括号来创建一个新的作用域，以允许拥有多个可变引用，只是不能 同时 拥有：
         let mut s = String::from("hello");
 
@@ -199,28 +201,28 @@ pub fn ch04_02_references_and_borrowing() {
     // 因为已经使用的不可变引用的 部分 一定不希望出现 在可变引用使值发生改变
     //
     {
-       let mut s = String::from("hello");
+        let mut s = String::from("hello");
 
-       let r1 = &s; // no problem
-       let r2 = &s; // no problem
-       let r3 = &mut s; // BIG PROBLEM
+        let r1 = &s; // no problem
+        let r2 = &s; // no problem
+        let r3 = &mut s; // BIG PROBLEM
 
-       // println!("{}, {}, and {}", r1, r2, r3);
+        // println!("{}, {}, and {}", r1, r2, r3);
     }
     // 在具有指针的语言中，很容易通过释放内存时保留指向它的指针而错误地生成一个 悬垂指针（dangling pointer），所谓悬垂指针是其指向的内存可能已经被分配给其它持有者。
     // 相比之下，在 Rust 中编译器确保引用永远也不会变成悬垂状态：当你拥有一些数据的引用，编译器确保数据不会在其引用之前离开作用域。
     {
-       // fn main() {
-       //     let reference_to_nothing = dangle();
-       // }
-       //
-       // fn dangle() -> &String {
-       //     let s = String::from("hello");
-       //
-       //     &s
-       //     // s 到这里离开作用域 被丢弃
-       //     // 这样引用的 s 也失效了
-       // }
+        // fn main() {
+        //     let reference_to_nothing = dangle();
+        // }
+        //
+        // fn dangle() -> &String {
+        //     let s = String::from("hello");
+        //
+        //     &s
+        //     // s 到这里离开作用域 被丢弃
+        //     // 这样引用的 s 也失效了
+        // }
     }
 }
 
@@ -272,7 +274,8 @@ pub fn ch04_03_slices() {
         // 传入切片类型 返回 切片
         let mut s = String::from("hello world");
 
-        fn first_word(s: &String) -> &str { // & str 切片类型
+        fn first_word(s: &String) -> &str {
+            // & str 切片类型
             let bytes = s.as_bytes();
 
             for (i, &item) in bytes.iter().enumerate() {

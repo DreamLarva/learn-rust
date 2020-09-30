@@ -40,10 +40,9 @@ mod menu {
     }
 }
 
-
 mod performance_group {
     // 建立从其他mod 中的软连接
-//    use crate::sound::instrument; // 更加推荐绝对路径 如果在 main.rs 中使用
+    //    use crate::sound::instrument; // 更加推荐绝对路径 如果在 main.rs 中使用
     use self::super::sound::instrument; // 在独立的模块中
 
     // use super::sound::instrument;
@@ -59,10 +58,8 @@ mod performance_group {
 // 从文件引入的mod 只能放在最外层的作用域下
 mod sound1;
 
-
 // 将文件分割进不同的文件夹
 mod sound2; // 需要 sound2.rs 在其中包含 sound2 文件夹内容 模块内功
-
 
 pub fn main() {
     // 路径来引用模块树种的项
@@ -99,28 +96,25 @@ pub fn main() {
     // 通过crate根增加 use crate::sound::instrument，现在 instrument 在作用域中就是有效的名称了，如同它被定义于 crate 根一样。
     instrument::clarinet();
 
-
     // use 函数路径使用习惯 vs 其他项
     // use crate::sound::instrument::clarinet; // 并不推荐
     // 对于函数来说，通过 use 指定函数的父模块接着指定父模块来调用方法被认为是习惯用法。
 
     use std::collections::HashMap; // 引入HashMap 的习惯用法 而不是 use std::collections; 在使用 collections::HashMap
 
-
     // 不允许在一个作用域内容 引入两个相同的 模块
-//     use std::fmt::Result;
-//     use std::io::Result;
-
+    //     use std::fmt::Result;
+    //     use std::io::Result;
 
     // 将两个不同父模块的 Result 类型引入作用域并引用它们
     {
-//        use std::fmt;
-//        use std::io;
-//
-//        fn function1() -> fmt::Result {
-//        }
-//        fn function2() -> io::Result<()> {
-//        }
+        //        use std::fmt;
+        //        use std::io;
+        //
+        //        fn function1() -> fmt::Result {
+        //        }
+        //        fn function2() -> io::Result<()> {
+        //        }
     }
 
     // 使用 as 关键字 重命名引入作用域的类型

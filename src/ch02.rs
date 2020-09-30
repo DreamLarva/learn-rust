@@ -1,17 +1,14 @@
 #![allow(unused_variables)] // 不对 未使用的变量 warning
 
-
 // 引用 标准库 std 中的 io
-use std::io;
 use std::cmp::Ordering;
+use std::io;
 // The Rng trait defines methods that random number generators implement, and this trait must be in scope for us to use those methods.
 // Rng trait 定义了 生成随机数方法的实现,必须引入
 use rand::Rng;
 
-
 pub fn ch02_00_guessing_game_tutorial() {
     println!("Guess the number!");
-
 
     // let mut temp = rand::thread_rng();
     // let secret_number = temp.gen_range(1, 100 + 1);
@@ -44,7 +41,7 @@ pub fn ch02_00_guessing_game_tutorial() {
 
         let guess: u32 = match guess.trim().parse() {
             Ok(num) => num,
-            Err(_) => continue
+            Err(_) => continue,
         };
 
         match guess.cmp(&secret_number) {
@@ -57,7 +54,3 @@ pub fn ch02_00_guessing_game_tutorial() {
         }
     }
 }
-
-
-
-

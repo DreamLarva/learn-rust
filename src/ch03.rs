@@ -14,7 +14,6 @@ pub fn ch03_02_data_types() {
     //    let c:u32 = 123;
     //    let d:f32 = 123.0;
 
-
     // let guess= "42".parse().expect("Not a number!");  // 这句会报错 编译器没法推断出类型
     let guess: u32 = "42".parse().expect("Not a number!");
     // let guess: u8 = "-42".parse().expect("Not a number!"); // 运行时报错
@@ -48,8 +47,8 @@ pub fn ch03_02_data_types() {
     let f64 = 2.0; // f64
 
     let f32: f32 = 3.0; // f32
-    // 支持使用 数值运算
-    // addition
+                        // 支持使用 数值运算
+                        // addition
     let sum = 5 + 10;
     // subtraction
     let difference = 95.5 - 4.3;
@@ -59,7 +58,6 @@ pub fn ch03_02_data_types() {
     let quotient = 56.7 / 32.2;
     // remainder
     let remainder = 43 % 5;
-
 
     // 布尔类型
     let t = true;
@@ -84,7 +82,6 @@ pub fn ch03_02_data_types() {
     let (_x, y, _z) = _tup1; // 解构
     let (_, _, _z) = _tup1; // 解构 可以用 _ 替代不要的位置
 
-
     // 通过索引取值
     let five_hundred = _tup1.0;
 
@@ -99,11 +96,22 @@ pub fn ch03_02_data_types() {
     // 数组中的内容可以修改 但是数组的长度不能修改
     // 当你想要在栈（stack）而不是在堆（heap）上为数据分配空间（第四章将讨论栈与堆的更多内容），或者是想要确保总是有固定数量的元素时，数组非常有用。
     let g = [1, 2, 3, 4, 5];
-    let months = ["January", "February", "March", "April", "May", "June", "July",
-        "August", "September", "October", "November", "Dec"];
+    let months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "Dec",
+    ];
 
     println!("{}", months[0]);
-
 
     // 声明一个数组
     let a: [i32; 5]; // 只声明
@@ -127,7 +135,8 @@ pub fn ch03_03_how_functions_work() {
     let x = 5;
 
     // 有返回值的才是表达式 才能成为赋值语句 的右值
-    let y = { // { } 块 宏调用
+    let y = {
+        // { } 块 宏调用
         let x = 3;
         x + 1 // 这行 没有 ; 表示这是一个返回值
     };
@@ -136,7 +145,6 @@ pub fn ch03_03_how_functions_work() {
 
     let z = five();
     let d = six(5);
-
 
     /// 方法只要在作用域中声明 就能够调用(不用先声明在前)
     fun_1();
@@ -152,7 +160,6 @@ pub fn ch03_03_how_functions_work() {
         println!("The value of x is: {}", x);
         println!("The value of y is: {}", y);
     }
-
 
     // 如果返回值被用来赋值 那么就一定要 显示注解类型
     fn five() -> i32 {
@@ -194,15 +201,15 @@ pub fn ch03_05_control_flow() {
     //        "six"
     //    };
 
-
     // 一直循环到 有明确的退出为止
     let mut a = 1;
     loop {
-        if a == 5 { break; }
+        if a == 5 {
+            break;
+        }
         println!("again!");
         a = a + 1
     }
-
 
     // 从 loop 中返回数值
     let mut counter = 0;
