@@ -3,7 +3,7 @@
 pub fn ch10_00_generics() {
     // 这里入参的类型 是 &数组
     fn largest(list: &[i32]) -> i32 {
-        let mut largest = list[0];
+        let mut largest = list[0]; // Copy 操作
 
         for &item in list {
             if item > largest {
@@ -93,8 +93,10 @@ pub fn ch10_01_syntax() {
             x: T,
             y: U,
         }
+        // 这里的泛型的个数 是死的 impl 右边必须是2个 Point右边也必须是2个
         impl<T, U> Point<T, U> {
-            // 来自结构体的泛型
+            // 来自结构体的泛型 V W 完全是 mix_up 方法作用域中 用到的泛型
+            // 直接获取的 传入的 Point 的所有权
             fn mix_up<V, W>(self, other: Point<V, W>) -> Point<T, W> {
                 // 来自函数的泛型
                 Point {
@@ -107,9 +109,18 @@ pub fn ch10_01_syntax() {
         let p2 = Point { x: "Hello", y: 'c' };
 
         let p3 = p1.mix_up(p2);
-        // let p3 = p1.mix_up(p2); // error p2 已经移交所有权
+        // p1.x; // error p1 已经移动
+        // move occurs because `p1` has type `Point<i32, f64>`, which does not implement the `Copy` trait
+        // p1调用的时候 就 moved了
+        // p2.x; // error p2 已经移动
 
         println!("p3.x = {}, p3.y = {}", p3.x, p3.y);
+
+        let p4 = Point { x: 1, y: ["2"] };
+        let p5 = Point { x: true, y: [1] };
+        // 就算出现不能 Copy 的trait 的类型也没有关系
+        // 因为 所有权全部移交了 当然没有关系 因为没有 任何借的东西
+        let p6 = p4.mix_up(p5);
     }
 }
 
@@ -167,6 +178,50 @@ pub fn ch10_02_traits() {
         // 一旦实现了 trait，我们就可以用与 NewsArticle 和 Tweet 实例的非 trait 方法一样的方式调用 trait 方法
         println!("1 new tweet: {}", tweet.summarize());
     }
+    {
+        struct Point<T, U> {
+            x: T,
+            y: U,
+        }
+
+        pub trait Summary1<T, S> {
+            fn summarize1(&self) -> Point<T, S>;
+        }
+
+        // A,B 泛型 供整个 Summary2 trait 使用
+        // T 泛型 仅供 summarize2 方法 使用
+        pub trait Summary2<A, B> {
+            fn summarize2<T>(&self, x: T) -> T;
+        }
+
+        pub struct Tweet<A, B> {
+            a: A,
+            b: B,
+        }
+
+        // 为 Tweet<bool, bool> 实现 Summary1<i32, f64>
+        // 任何一个泛型不对 实例上是调用不了这个方法的
+        // 如果使用ide 自动实现的话 i32, f64 的翻新会自动推导到 summarize1 方法的 返回类型上
+        impl Summary1<i32, f64> for Tweet<bool, bool> {
+            fn summarize1(&self) -> Point<i32, f64> {
+                Point { x: 1, y: 2.0 }
+            }
+        }
+
+        // 虽然实际没有 用到Summary2 的泛型 但是有几个 还是得写几个
+        impl Summary2<i32, f64> for Tweet<i32, i32> {
+            fn summarize2<T>(&self, x: T) -> T {
+                x
+            }
+        }
+
+        // 上面没有 summarize1 方法 有 summarize2 方法
+        let tweet1 = Tweet { a: 2, b: 1 };
+        tweet1.summarize2(1);
+
+        // 有 summarize1 方法`
+        let tweet2 = Tweet { a: true, b: true };
+    }
 
     // 实现 trait 时需要注意的一个限制是，只有当 trait 或者要实现 trait 的类型位于 crate 的本地作用域时，才能为该类型实现 trait。
     // 例如，可以为 aggregator crate 的自定义类型 Tweet 实现如标准库中的 Display trait，这是因为 Tweet 类型位于 aggregator crate 本地的作用域中。
@@ -206,7 +261,7 @@ pub fn ch10_02_traits() {
         println!("New article available! {}", article.summarize());
     }
     // 重载一个默认的实现
-    // 注意无法从相同方法的重载实现中调用默认方法。
+    // 注意无法从相同方法的重载实现中 调用默认方法。(这不是当然吗?)
     {
         pub struct Tweet {
             pub username: String,
@@ -218,12 +273,14 @@ pub fn ch10_02_traits() {
             fn summarize_author(&self) -> String;
 
             fn summarize(&self) -> String {
+                self.summarize_author();
                 format!("(Read more from {}...)", self.summarize_author())
             }
         }
 
         impl Summary for Tweet {
             fn summarize_author(&self) -> String {
+                self.summarize();
                 format!("@{}", self.username)
             }
             // 默认实现了 summarize
@@ -356,9 +413,9 @@ pub fn ch10_02_traits() {
         }
 
         fn some_function2<T, U>(t: T, u: U) -> i32
-        where
-            T: Display + Clone,
-            U: Clone + Debug,
+            where
+                T: Display + Clone,
+                U: Clone + Debug,
         {
             1
         }
@@ -588,9 +645,9 @@ pub fn ch10_03_lifetime_syntax() {
             let string2 = String::from("xyz");
             result = longest(string1.as_str(), string2.as_str());
         } // string2 生命周期在这里结束 要短于 string1
-          // 然而，我们通过生命周期参数告诉 Rust 的是： longest 函数返回的引用的生命周期应该与传入参数的生命周期中较短那个保持一致。
-          // println!("The longest string is {}", result); // error
-          // 较短的 生命周期是 string2 已经结束了 result 引用较短的那个 在这里已经没有了
+        // 然而，我们通过生命周期参数告诉 Rust 的是： longest 函数返回的引用的生命周期应该与传入参数的生命周期中较短那个保持一致。
+        // println!("The longest string is {}", result); // error
+        // 较短的 生命周期是 string2 已经结束了 result 引用较短的那个 在这里已经没有了
     }
 
     // 深入理解生命周期
@@ -742,8 +799,8 @@ pub fn ch10_03_lifetime_syntax() {
         use std::fmt::Display;
 
         fn longest_with_an_announcement<'a, T>(x: &'a str, y: &'a str, ann: T) -> &'a str
-        where
-            T: Display,
+            where
+                T: Display,
         {
             println!("Announcement! {}", ann);
             if x.len() > y.len() {

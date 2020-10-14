@@ -13,6 +13,7 @@ pub fn ch02_00_guessing_game_tutorial() {
     // let mut temp = rand::thread_rng();
     // let secret_number = temp.gen_range(1, 100 + 1);
 
+    // 没有 use rand::Rng; gen_range就会报错
     let secret_number = rand::thread_rng().gen_range(1, 100 + 1); // 这个也能运行
 
     println!("The secret_number is: {}", secret_number);

@@ -1,7 +1,5 @@
 #![allow(unused_variables)] // 不对 未使用的变量 warning
 
-use std::os::macos::raw::stat;
-
 pub fn ch06_01_defining_an_enum() {
     {
         #[derive(Debug)]
