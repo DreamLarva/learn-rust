@@ -146,7 +146,7 @@ pub fn ch09_02_recoverable_errors_with_result() {
         }
     }
     {
-        //  Rust 提供了名为 fs::read_to_string 的函数，它会打开文件、新建一个 String、读取文件的内容，并将内容放入 String，接着返回它。
+        // Rust 提供了名为 fs::read_to_string 的函数，它会打开文件、新建一个 String、读取文件的内容，并将内容放入 String，接着返回它。
         // 当然，这样做就没有展示所有这些错误处理的机会了
         fn read_username_from_file() -> Result<String, io::Error> {
             fs::read_to_string("hello.txt")

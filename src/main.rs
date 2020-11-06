@@ -3,7 +3,7 @@
 
 use std::collections::HashMap;
 use std::fs::{self, File};
-use std::io;
+use std::{io, env, process};
 use std::io::ErrorKind;
 use std::io::Read;
 use std::ops::{Add, Index};
@@ -18,12 +18,16 @@ mod ch07;
 mod ch08;
 mod ch09;
 mod ch10;
-//mod ch11_01;
-//mod ch11_02;
-//mod ch11_03;
+mod ch11_01;
+mod ch11_02;
+mod ch11_03;
+mod ch12;
 // mod ch13;
 
-fn main() {
+// 引用当前的 crate 也就是 lib 中的内容, 使用的文件名就是 当前项目的名字
+use the_rust_programming_language::Config;
+
+pub fn main() {
     // ch01::main();
 
     // ch02::ch02_00_guessing_game_tutorial()
@@ -55,9 +59,23 @@ fn main() {
     // ch09::ch09_02_recoverable_errors_with_result();
     // ch09::ch09_03_to_panic_or_not_to_panic();
 
-    ch10::ch10_01_syntax();
-    //    ch10::ch10_02_traits();
-    //    ch10::ch10_03_lifetime_syntax();
+    // ch10::ch10_01_syntax();
+    // ch10::ch10_02_traits();
+    // ch10::ch10_03_lifetime_syntax();
+
+
+    let args: Vec<_> = env::args().collect();
+    let config = Config::new(&args).unwrap_or_else(|err| {
+        println!("problem parsing arguments: {}", err);
+        process::exit(1)
+    });
+    println!("Searching for {}", config.query);
+    println!("In file {}", config.filename);
+
+    if let Err(e) = the_rust_programming_language::run(config) {
+        println!("Application error : {}", e);
+        process::exit(1);
+    }
 
     //    ch13::ch13_01_closures();
     //     ch13::ch13_02_iterators();

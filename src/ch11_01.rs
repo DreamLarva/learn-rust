@@ -24,10 +24,10 @@ mod tests1 {
         assert_eq!(2 + 2, 4);
     }
 
-//            #[test]
-//            fn another() {
-//                panic!("Make this test fail");
-//            }
+    // #[test]
+    // fn another() {
+    //     panic!("Make this test fail");
+    // }
 }
 
 // 使用assert!宏来检查结果
@@ -41,16 +41,28 @@ mod tests2 {
 
     #[test]
     fn larger_can_hold_smaller() {
-        let larger = Rectangle { length: 8, width: 7 };
-        let smaller = Rectangle { length: 5, width: 1 };
+        let larger = Rectangle {
+            length: 8,
+            width: 7,
+        };
+        let smaller = Rectangle {
+            length: 5,
+            width: 1,
+        };
 
         assert!(larger.can_hold(&smaller));
     }
 
     #[test]
     fn smaller_cannot_hold_larger() {
-        let larger = Rectangle { length: 8, width: 7 };
-        let smaller = Rectangle { length: 5, width: 1 };
+        let larger = Rectangle {
+            length: 8,
+            width: 7,
+        };
+        let smaller = Rectangle {
+            length: 5,
+            width: 1,
+        };
 
         assert!(!smaller.can_hold(&larger));
     }
@@ -58,6 +70,16 @@ mod tests2 {
 
 // 使用 assert_eq! 和 assert_ne! 宏来测试相等
 // assert_eq! 和 assert_ne!。这两个宏分别比较两个值是相等还是不相等。
+// assert_eq! 和 assert_ne! 宏在底层分别使用了 == 和 !=。
+// 当断言失败时，这些宏会使用调试格式打印出其参数，这意味着被比较的值必需实现了 PartialEq 和 Debug trait。
+// 需要实现 Debug 才能在断言失败时打印他们的值。因为这两个 trait 都是派生 trait,
+// 通常可以直接在结构体或枚举上添加 #[derive(PartialEq, Debug)] 注解。
+
+// 想要 参与 asset 比较的 struct 必须要 PartialEq, Debug 这两个 派生 trait
+#[derive(PartialEq, Debug)]
+struct TestStruct {
+    a: i32,
+}
 
 pub fn add_two(a: i32) -> i32 {
     a + 2
@@ -66,6 +88,20 @@ pub fn add_two(a: i32) -> i32 {
 #[cfg(test)]
 mod tests3 {
     use super::*;
+
+    // 断言两个 struct 是否全等
+    #[test]
+    fn test_struct() {
+        let a = TestStruct { a: 1 };
+        let b = TestStruct { a: 1 };
+
+        let c = TestStruct { a: 2 };
+
+        assert_eq!(a, b);
+        assert!(a == b);
+        assert_ne!(a, c);
+        assert!(a != c);
+    }
 
     #[test]
     fn it_adds_two() {
@@ -87,7 +123,11 @@ mod test4 {
     #[test]
     fn greeting_contains_name() {
         let result = greeting("Carol");
-        assert!(result.contains("Carol"), "Greeting did not contain name, value was `{}`", result);
+        assert!(
+            result.contains("Carol"),
+            "Greeting did not contain name, value was `{}`",
+            result
+        );
     }
 }
 
@@ -99,16 +139,18 @@ pub struct Guess {
 impl Guess {
     pub fn new(value: i32) -> Guess {
         if value < 1 {
-            panic!("Guess value must be greater than or equal to 1, got {}.",
-                   value);
+            panic!(
+                "Guess value must be greater than or equal to 1, got {}.",
+                value
+            );
         } else if value > 100 {
-            panic!("Guess value must be less than or equal to 100, got {}.",
-                   value);
+            panic!(
+                "Guess value must be less than or equal to 100, got {}.",
+                value
+            );
         }
 
-        Guess {
-            value
-        }
+        Guess { value }
     }
 }
 
@@ -126,6 +168,7 @@ mod tests5 {
 
 // 将Rest<T,E>用于测试
 // 使用Result 枚举 这样就不用 声明#[should_panic]了 处理了 同时处理了成功和失败的两种情况
+// 进入 是 Err 枚举就直接失败
 #[cfg(test)]
 mod tests6 {
     #[test]
@@ -137,5 +180,3 @@ mod tests6 {
         }
     }
 }
-
-

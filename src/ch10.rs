@@ -413,9 +413,9 @@ pub fn ch10_02_traits() {
         }
 
         fn some_function2<T, U>(t: T, u: U) -> i32
-            where
-                T: Display + Clone,
-                U: Clone + Debug,
+        where
+            T: Display + Clone,
+            U: Clone + Debug,
         {
             1
         }
@@ -645,9 +645,9 @@ pub fn ch10_03_lifetime_syntax() {
             let string2 = String::from("xyz");
             result = longest(string1.as_str(), string2.as_str());
         } // string2 生命周期在这里结束 要短于 string1
-        // 然而，我们通过生命周期参数告诉 Rust 的是： longest 函数返回的引用的生命周期应该与传入参数的生命周期中较短那个保持一致。
-        // println!("The longest string is {}", result); // error
-        // 较短的 生命周期是 string2 已经结束了 result 引用较短的那个 在这里已经没有了
+          // 然而，我们通过生命周期参数告诉 Rust 的是： longest 函数返回的引用的生命周期应该与传入参数的生命周期中较短那个保持一致。
+          // println!("The longest string is {}", result); // error
+          // 较短的 生命周期是 string2 已经结束了 result 引用较短的那个 在这里已经没有了
     }
 
     // 深入理解生命周期
@@ -799,8 +799,8 @@ pub fn ch10_03_lifetime_syntax() {
         use std::fmt::Display;
 
         fn longest_with_an_announcement<'a, T>(x: &'a str, y: &'a str, ann: T) -> &'a str
-            where
-                T: Display,
+        where
+            T: Display,
         {
             println!("Announcement! {}", ann);
             if x.len() > y.len() {

@@ -14,7 +14,6 @@ fn prints_and_returns_10(a: i32) -> i32 {
     10
 }
 
-
 // 注意输出中不会出现测试通过时打印的内容
 // 如果希望显示 可以使用  cargo test -- --nocapture
 #[cfg(test)]
@@ -45,8 +44,8 @@ mod tests1 {
     use super::*;
 
     #[test]
-    fn add_two_and_two(){
-        assert_eq!(4,add_two(2))
+    fn add_two_and_two() {
+        assert_eq!(4, add_two(2))
     }
 
     #[test]
@@ -75,4 +74,3 @@ mod tests1 {
 // 忽略某些测试
 // 使用额外(需要已经有$[test])#[ignore] 注释
 // 只运行ignore 的测试 cargo test -- --ignored
-
