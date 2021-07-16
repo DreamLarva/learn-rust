@@ -1,6 +1,6 @@
+use std::collections::HashMap;
 use std::thread;
 use std::time::Duration;
-use std::collections::HashMap;
 
 // Rust 的 闭包（closures）是可以保存进变量或作为参数传递给其他函数的匿名函数。可以在一个地方创建闭包，然
 // 后在不同的上下文中执行闭包运算。
@@ -11,36 +11,34 @@ pub fn ch13_01_closures() {
     {
         // 这里将通过调用 simulated_expensive_calculation 函数来模拟调用假象的算法，如示例 13-1 所示，
         // 它会打印出 calculating slowly...，等待两秒，并接着返回传递给它的数字
+        fn simulated_expensive_calculation(intensity: u32) -> u32 {
+            println!("calculating slowly...");
+            thread::sleep(Duration::from_secs(2));
+            intensity
+        }
 
         fn generate_workout(intensity: u32, random_number: u32) {
-
             // 使用闭包存储代码
             // 闭包的定义以一对竖线 | 开始,在竖线中指定闭包的参数；
             // 这个闭包有一个参数 num；如果有多于一个参数，可以使用逗号分隔，比如 |param1, param2|
             // 参数之后是存放闭包体的大括号 —— 如果闭包体只有一行则大括号是可以省略的。
+
             let expensive_closure = |num| {
                 println!("calculating slowly...");
                 thread::sleep(Duration::from_secs(2));
                 num
             };
 
+            // let expensive_closure = |num| simulated_expensive_calculation(num);
+
             if intensity < 25 {
-                println!(
-                    "Today, do {} pushups!",
-                    expensive_closure(intensity)
-                );
-                println!(
-                    "Next, do {} situps!",
-                    expensive_closure(intensity)
-                );
+                println!("Today, do {} pushups!", expensive_closure(intensity));
+                println!("Next, do {} situps!", expensive_closure(intensity));
             } else {
                 if random_number == 3 {
                     println!("Take a break today! Remember to stay hydrated!");
                 } else {
-                    println!(
-                        "Today, run for {} minutes!",
-                        expensive_closure(intensity)
-                    );
+                    println!("Today, run for {} minutes!", expensive_closure(intensity));
                 }
             }
         }
@@ -48,44 +46,47 @@ pub fn ch13_01_closures() {
         let simulated_user_specified_value = 10;
         let simulated_random_number = 7;
 
-        generate_workout(
-            simulated_user_specified_value,
-            simulated_random_number,
-        );
+        generate_workout(simulated_user_specified_value, simulated_random_number);
     }
 
     // 闭包类型推断和注解
     {
-        // 闭包不要求像 fn 函数那样在参数和返回值上注明类型。函数中需要类型注解是因为他们是暴露给用户的显
-        // 式接口的一部分。
-        fn add_one_v1(x: u32) -> u32 { x + 1 }
+        // 闭包不要求像 fn 函数那样在参数和返回值上注明类型。
+        // 函数中需要类型注解是因为他们是暴露给用户的显式接口的一部分。
+        fn add_one_v1(x: u32) -> u32 {
+            x + 1
+        }
         let add_one_v2 = |x: u32| -> u32 { x + 1 };
-        let add_one_v3 = |x| { x + 1 };
+        let add_one_v3 = |x| x + 1;
         let add_one_v4 = |x| x + 1;
 
-        // 注意没有声明类型的闭包 必须调用 否则会报错没法识别类型
+        // ** 注意没有声明类型的闭包 必须调用 否则会报错没法识别类型 **
+        // 因为 rust 编译器 会根据之后**第一次**调用时入参的类型 来确定之前申明时候应该是是什么类型
         add_one_v3(1);
         add_one_v4(1);
         // 这些的方法除了类型是相同 使用起来是 相同的
         let example_closure = |x| x;
-        //
+
         let s = example_closure(String::from("hello"));
-//        let n = example_closure(5); // error 如果尝试对同一闭包使用不同类型则会得到类型错误
+        // let n = example_closure(5); // error 如果尝试对同一闭包使用不同类型则会得到类型错误
     }
 
     // 使用带有泛型和Fn trait 的闭包
     {
-        struct Cacher<T>
         // Fn 系列 trait 由标准库提供。所有的闭包都实现了 trait Fn、FnMut 或 FnOnce 中的一个。
         // 注意：函数也都实现了这三个 Fn trait。如果不需要捕获环境中的值，则可以使用实现了 Fn trait 的函数而不是闭包。
-            where T: Fn(u32) -> u32 // 声明了 T 发型
+
+        struct Cacher<T>
+        where
+            T: Fn(u32) -> u32, // 声明了 T 发型
         {
             calculation: T,
             value: Option<u32>,
         }
 
         impl<T> Cacher<T>
-            where T: Fn(u32) -> u32
+        where
+            T: Fn(u32) -> u32,
         {
             fn new(calculation: T) -> Cacher<T> {
                 Cacher {
@@ -94,7 +95,8 @@ pub fn ch13_01_closures() {
                 }
             }
             fn value(&mut self, arg: u32) -> u32 {
-                match self.value { // 检测value 值 因为默认是 None 一定会进入None 分支
+                match self.value {
+                    // 检测value 值 因为默认是 None 一定会进入None 分支
                     Some(v) => v,
                     None => {
                         // 注意 这里使用 () 包裹了self.calculation  才能调用
@@ -106,10 +108,6 @@ pub fn ch13_01_closures() {
             }
         }
 
-
-
-
-
         fn generate_workout(intensity: u32, random_number: u32) {
             let mut expensive_result = Cacher::new(|num| {
                 println!("calculating slowly...");
@@ -118,14 +116,8 @@ pub fn ch13_01_closures() {
             });
 
             if intensity < 25 {
-                println!(
-                    "Today, do {} pushups!",
-                    expensive_result.value(intensity)
-                );
-                println!(
-                    "Next, do {} situps!",
-                    expensive_result.value(intensity)
-                );
+                println!("Today, do {} pushups!", expensive_result.value(intensity));
+                println!("Next, do {} situps!", expensive_result.value(intensity));
             } else {
                 if random_number == 3 {
                     println!("Take a break today! Remember to stay hydrated!");
@@ -145,14 +137,16 @@ pub fn ch13_01_closures() {
     {
         // 存储值使用HashMap
         struct Cacher<T>
-            where T: Fn(u32) -> u32
+        where
+            T: Fn(u32) -> u32,
         {
             calculation: T,
             value: HashMap<u32, u32>,
         }
 
         impl<T> Cacher<T>
-            where T: Fn(u32) -> u32
+        where
+            T: Fn(u32) -> u32,
         {
             fn new(calculation: T) -> Cacher<T> {
                 Cacher {
@@ -251,17 +245,24 @@ pub fn ch13_02_iterators() {
             style: String,
         }
         fn shoes_in_my_size(shoes: Vec<Shoe>, shoe_size: u32) -> Vec<Shoe> {
-            shoes.into_iter()
-                .filter(|s| s.size == shoe_size)
-                .collect()
+            shoes.into_iter().filter(|s| s.size == shoe_size).collect()
         }
 
         #[test]
         fn filters_by_size() {
             let shoes = vec![
-                Shoe { size: 10, style: String::from("sneaker") },
-                Shoe { size: 13, style: String::from("sandal") },
-                Shoe { size: 10, style: String::from("boot") },
+                Shoe {
+                    size: 10,
+                    style: String::from("sneaker"),
+                },
+                Shoe {
+                    size: 13,
+                    style: String::from("sandal"),
+                },
+                Shoe {
+                    size: 10,
+                    style: String::from("boot"),
+                },
             ];
 
             let in_my_size = shoes_in_my_size(shoes, 10);
@@ -269,8 +270,14 @@ pub fn ch13_02_iterators() {
             assert_eq!(
                 in_my_size,
                 vec![
-                    Shoe { size: 10, style: String::from("sneaker") },
-                    Shoe { size: 10, style: String::from("boot") },
+                    Shoe {
+                        size: 10,
+                        style: String::from("sneaker")
+                    },
+                    Shoe {
+                        size: 10,
+                        style: String::from("boot")
+                    },
                 ]
             );
         }
@@ -282,9 +289,7 @@ pub fn ch13_02_iterators() {
         }
         impl Counter {
             fn new() -> Counter {
-                Counter {
-                    count: 0
-                }
+                Counter { count: 0 }
             }
         }
         impl Iterator for Counter {
@@ -313,7 +318,8 @@ pub fn ch13_02_iterators() {
         // 通过定义 next 方法实现 Iterator trait，我们现在就可以使用任何标准库定义的拥有默认实现的
         // Iterator trait 方法了，因为他们都使用了 next 方法的功能。
         // 这里是 zip 方法 传入一个 trait IntoIterator的实现 返回一个 Iterator
-        let sum = Counter::new().zip(Counter::new().skip(1)) // 注意 zip 只产生四对值
+        let sum: u32 = Counter::new()
+            .zip(Counter::new().skip(1)) // 注意 zip 只产生四对值
             .map(|(a, b)| a * b)
             .filter(|x| x % 3 == 0)
             .sum();

@@ -45,7 +45,7 @@ pub fn ch04_01_what_is_ownership() {
     // 在需要释放内存的时候释放,时机不能早也不能晚,也不能释放多次
 
     let x = 5; // 对于字面量大小已经定了
-    let y = x; // 所以堆上面有 2 个 5
+    let y = x; // 所以栈上面有 2 个 5
     println!("{}, {}", x, y); // x y 都可以正常使用
 
     // 数据和变量的交互操作: move
@@ -95,6 +95,7 @@ pub fn ch04_01_what_is_ownership() {
         fn takes_ownership(some_string: String) {
             // some_string 进入作用域
             println!("{}", some_string);
+            println!("{}", &some_string); // 为啥 println! 不会消耗 所有权呢, 因为他是一个宏?
         } // 这里，some_string 移出作用域并调用 `drop` 方法。占用的内存被释放
 
         fn makes_copy(some_integer: i32) {
@@ -115,8 +116,9 @@ pub fn ch04_01_what_is_ownership() {
 
             // takes_and_gives_back 中,
             // 它也将返回值移给 s3
-        } // 这里, s3 移出作用域并被丢弃。s2 也移出作用域，但已被移走，
-          // 所以什么也不会发生。s1 移出作用域并被丢弃
+        } // 这里, s3 移出作用域并被丢弃。
+          // s2 也移出作用域，但已被移走，所以什么也不会发生。
+          // s1 移出作用域并被丢弃
 
         fn gives_ownership() -> String {
             // gives_ownership 将返回值移动给
@@ -207,7 +209,7 @@ pub fn ch04_02_references_and_borrowing() {
         let r2 = &s; // no problem
         let r3 = &mut s; // BIG PROBLEM
 
-        // println!("{}, {}, and {}", r1, r2, r3);
+        // println!("{}, {}, and {}", r1, r2, r3); // error
     }
     // 在具有指针的语言中，很容易通过释放内存时保留指向它的指针而错误地生成一个 悬垂指针（dangling pointer），所谓悬垂指针是其指向的内存可能已经被分配给其它持有者。
     // 相比之下，在 Rust 中编译器确保引用永远也不会变成悬垂状态：当你拥有一些数据的引用，编译器确保数据不会在其引用之前离开作用域。
@@ -228,7 +230,7 @@ pub fn ch04_02_references_and_borrowing() {
 
 pub fn ch04_03_slices() {
     {
-        // 另一个没有所有权的数据类型是 slice。
+        // 另一个**没有所有权**的数据类型是 slice。
         // slice 允许你引用集合中一段连续的元素序列，而不用引用整个集合。
 
         // 编写一个函数，该函数接收一个字符串，并返回在该字符串中找到的第一个单词。
@@ -252,7 +254,8 @@ pub fn ch04_03_slices() {
         s.clear();
 
         // s的值改变了  但是 word 的值 也就是 s的长度没有改变 所以逻辑上存在问题
-        // println!("{},{}", s, word)
+        // s 和 word 并没有同步,这就可能存在bug的隐患
+        println!("{},{}", s, word)
     }
     // 字符串 slice（string slice）
     {
@@ -310,6 +313,7 @@ pub fn ch04_03_slices() {
 
         // first_word 中传入 `String` 的 slice 相当于整个引用
         let word = first_word(&my_string[..]);
+        let word = first_word(&my_string);
 
         let my_string_literal = "hello world";
 

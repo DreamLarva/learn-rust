@@ -1,8 +1,8 @@
 // 个函数返回一个传递给程序的命令行参数的 迭代器（iterator）
 use std::env;
+use std::error::Error;
 use std::fs;
 use std::process;
-use std::error::Error;
 
 // 二进制项目的关注分离
 // main 函数负责多个任务的组织问题在许多二进制项目中很常见。
@@ -88,9 +88,6 @@ mod tests {
 Rust:
 safe, fast, productive
 Pick three.";
-        assert_eq!(
-            vec!["safe, fast, productive"],
-            search(query, contents)
-        )
+        assert_eq!(vec!["safe, fast, productive"], search(query, contents))
     }
 }

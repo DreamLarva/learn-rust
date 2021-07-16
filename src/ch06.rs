@@ -4,8 +4,7 @@ pub fn ch06_01_defining_an_enum() {
     {
         #[derive(Debug)]
         enum IpAddrKind {
-            V4,
-            // 枚举的成员
+            V4, // 枚举的成员
             V6, // 枚举的成员
         }
 
@@ -75,8 +74,8 @@ pub fn ch06_01_defining_an_enum() {
             Write(String),
             ChangeColor(i32, i32, i32),
         }
-        // 类单元结构体
-        struct QuitMessage;
+        // 如下这些结构体可以包含与之前枚举成员中相同的数据:
+        struct QuitMessage; // 类单元结构体
         struct MoveMessage {
             x: i32,
             y: i32,
@@ -85,6 +84,7 @@ pub fn ch06_01_defining_an_enum() {
         struct WriteMessage(String);
         // 元组结构体
         struct ChangeColorMessage(i32, i32, i32);
+        let changeColorMessage = ChangeColorMessage(1, 1, 1);
 
         // 可以在枚举上定义方法
         impl Message {
@@ -163,6 +163,7 @@ pub fn ch06_02_match() {
             Dime,
             Quarter(UsState),
         }
+
         fn value_in_cents1(coin: Coin) -> u32 {
             match coin {
                 Coin::Penny => 1,
@@ -189,7 +190,7 @@ pub fn ch06_02_match() {
         }
 
         println!("{}", value_in_cents1(Coin::Quarter(UsState::Alaska)));
-        println!("{}", value_in_cents2(Coin::Quarter(UsState::Alaska)))
+        println!("{}", value_in_cents2(Coin::Quarter(UsState::Alaska)));
     }
 
     // 匹配Option<T>
@@ -254,7 +255,7 @@ pub fn ch06_03_if_let() {
     // 这样也要增加很多样板代码。
     match some_u8_value {
         Some(3) => println!("three"),
-        _ => (), // 没有佩佩到 Some(3) 就走了这个分支什么都不做
+        _ => (), // 没有匹配到 Some(3) 就走了这个分支什么都不做
     }
 
     // 使用 if let

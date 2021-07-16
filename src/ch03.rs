@@ -14,7 +14,7 @@ pub fn ch03_02_data_types() {
     //    let c:u32 = 123;
     //    let d:f32 = 123.0;
 
-    // let guess= "42".parse().expect("Not a number!");  // 这句会报错 编译器没法推断出类型
+    // let guess = "42".parse().expect("Not a number!");  // 这句会报错 编译器没法推断出类型
     let guess: u32 = "42".parse().expect("Not a number!");
     // let guess: u8 = "-42".parse().expect("Not a number!"); // 运行时报错
     // let guess: u8 = "4222222222222222".parse().expect("Not a number!"); // 运行时报错
@@ -74,7 +74,7 @@ pub fn ch03_02_data_types() {
     let string = "123abc";
     println!("{}", string);
 
-    /** 符合类型 */
+    /** 复合类型 */
     // 元组类型
     // 一旦初始化 大小就固定了 不能添加或者删除
     let _tup1: (i32, f64, u8) = (500, 6.4, 1); // 可以设置多种类型
@@ -94,7 +94,8 @@ pub fn ch03_02_data_types() {
 
     // 数组类型 所有元素的类型必须相同 且长度固定
     // 数组中的内容可以修改 但是数组的长度不能修改
-    // 当你想要在栈（stack）而不是在堆（heap）上为数据分配空间（第四章将讨论栈与堆的更多内容），或者是想要确保总是有固定数量的元素时，数组非常有用。
+    // 当你想要在栈（stack）而不是在堆（heap）上为数据分配空间（第四章将讨论栈与堆的更多内容），
+    // 或者是想要确保总是有固定数量的元素时，数组非常有用。
     let g = [1, 2, 3, 4, 5];
     let months = [
         "January",

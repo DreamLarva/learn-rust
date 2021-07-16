@@ -3,10 +3,10 @@
 
 use std::collections::HashMap;
 use std::fs::{self, File};
-use std::{io, env, process};
 use std::io::ErrorKind;
 use std::io::Read;
 use std::ops::{Add, Index};
+use std::{env, io, process};
 
 mod ch01;
 mod ch02;
@@ -15,14 +15,16 @@ mod ch04;
 mod ch05;
 mod ch06;
 mod ch07;
-mod ch08;
+mod ch08_hashmap;
+mod ch08_string;
+mod ch08_vec;
 mod ch09;
 mod ch10;
 mod ch11_01;
 mod ch11_02;
 mod ch11_03;
 mod ch12;
-// mod ch13;
+mod ch13;
 
 // 引用当前的 crate 也就是 lib 中的内容, 使用的文件名就是 当前项目的名字
 use the_rust_programming_language::Config;
@@ -51,9 +53,9 @@ pub fn main() {
     // rust 中 文件夹 中的 mod.rs 相当于整个文件夹的索引(类似js 中的index.js)
     // ch07::main()
 
-    // ch08::ch08_01_vectors();
-    // ch08::ch08_02_strings();
-    // ch08::ch08_03_hash_maps();
+    // ch08_vec::ch08_01_vectors();
+    ch08_string::ch08_02_strings();
+    // ch08_hashmap::ch08_03_hash_maps();
 
     // ch09::ch09_01_unrecoverable_errors_with_panic();
     // ch09::ch09_02_recoverable_errors_with_result();
@@ -63,20 +65,21 @@ pub fn main() {
     // ch10::ch10_02_traits();
     // ch10::ch10_03_lifetime_syntax();
 
+    // let args: Vec<_> = env::args().collect();
+    // let config = Config::new(&args).unwrap_or_else(|err| {
+    //     // eprintln! 宏来打印到标准错误流 否则如果输出到文件的话,会将错误信息输出到文件
+    //     eprintln!("problem parsing arguments: {}", err);
+    //     process::exit(1)
+    // });
+    // println!("Searching for {}", config.query);
+    // println!("In file {}", config.filename);
+    //
+    // if let Err(e) = the_rust_programming_language::run(config) {
+    //     // eprintln! 宏来打印到标准错误流
+    //     eprintln!("Application error : {}", e);
+    //     process::exit(1);
+    // }
 
-    let args: Vec<_> = env::args().collect();
-    let config = Config::new(&args).unwrap_or_else(|err| {
-        println!("problem parsing arguments: {}", err);
-        process::exit(1)
-    });
-    println!("Searching for {}", config.query);
-    println!("In file {}", config.filename);
-
-    if let Err(e) = the_rust_programming_language::run(config) {
-        println!("Application error : {}", e);
-        process::exit(1);
-    }
-
-    //    ch13::ch13_01_closures();
-    //     ch13::ch13_02_iterators();
+    // ch13::ch13_01_closures();
+    // ch13::ch13_02_iterators();
 }

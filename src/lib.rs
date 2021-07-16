@@ -52,6 +52,8 @@ mod back_of_house {
     }
 }
 
+// use crate::front_of_house::hosting::add_to_waitlist;
+
 pub fn eat_at_restaurant() {
     // 第一种方式，我们在 eat_at_restaurant 中调用 add_to_waitlist 函数，使用的是绝对路径。
     // add_to_waitlist 函数与 eat_at_restaurant 被定义在同一 crate 中，
@@ -128,9 +130,9 @@ use std::collections::*;
 
 // 个函数返回一个传递给程序的命令行参数的 迭代器（iterator）
 use std::env;
+use std::error::Error;
 use std::fs;
 use std::process;
-use std::error::Error;
 
 // 二进制项目的关注分离
 // main 函数负责多个任务的组织问题在许多二进制项目中很常见。
@@ -148,6 +150,7 @@ use std::error::Error;
 pub struct Config {
     pub query: String,
     pub filename: String,
+    pub case_sensitive: bool,
 }
 
 impl Config {
@@ -157,9 +160,15 @@ impl Config {
         }
         let query = args[1].clone();
         let filename = args[2].clone();
+        // 由环境变量 CASE_INSENSITIVE 决定是否大小写敏感
+        let case_sensitive = env::var("CASE_INSENSITIVE").is_err();
 
         // Config 类型 要的类型 都是用完整的 所有权 所以必须上面 那两个解的 只能 clone 了
-        Ok(Config { query, filename })
+        Ok(Config {
+            query,
+            filename,
+            case_sensitive,
+        })
     }
 }
 
@@ -170,7 +179,13 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     // 直接给文件名 默认是从 根目录 开始找
     let contents = fs::read_to_string(config.filename)?;
 
-    for line in search(&config.query, &contents) {
+    let results = if config.case_sensitive {
+        search(&config.query, &contents)
+    } else {
+        search_case_insensitive(&config.query, &contents)
+    };
+
+    for line in results {
         println!("{}", line);
     }
 
@@ -188,20 +203,42 @@ pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
     results
 }
 
+pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+    let query = query.to_lowercase();
+    let mut results = Vec::new();
+    for line in contents.lines() {
+        if line.to_lowercase().contains(&query) {
+            results.push(line);
+        }
+    }
+    results
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn one_result() {
+    fn case_sensitive() {
         let query = "duct";
         let contents = "\
 Rust:
 safe, fast, productive
 Pick three.";
+        assert_eq!(vec!["safe, fast, productive"], search(query, contents))
+    }
+
+    #[test]
+    fn case_insensitive() {
+        let query = "rUsT";
+        let contents = "\
+Rust:
+safe, fast, productive.
+Pick three.
+trust me.";
         assert_eq!(
-            vec!["safe, fast, productive"],
-            search(query, contents)
+            vec!["Rust:", "trust me."],
+            search_case_insensitive(query, contents)
         )
     }
 }

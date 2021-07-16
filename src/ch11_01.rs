@@ -1,6 +1,5 @@
 #![allow(unused_variables)]
 
-
 #[derive(Debug)]
 pub struct Rectangle {
     length: u32,

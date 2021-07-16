@@ -5,5 +5,5 @@ authors = ["Agent47 <654136828@qq.com>"]
 edition = "2018"
 
 [dependencies]
-rand = "^0.3.14"
+rand = "0.8.3"
 adder = "0.1.0"

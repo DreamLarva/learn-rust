@@ -1,5 +1,7 @@
 // mod 关键字 定义模块 可嵌套
 mod sound {
+    use std::any::Any;
+
     pub mod instrument {
         // 使用pub 关键字 使模块成为公有
         pub fn clarinet() {
@@ -11,6 +13,10 @@ mod sound {
 
     fn breathe_in() {
         // 函数体
+
+        // let a = super::plant::Vegetable { name: "12", id: 1 };
+        let a = super::plant::generate_struct();
+        // a.id; // private
     }
 }
 
@@ -19,7 +25,7 @@ mod plant {
     // 可以在每一个字段的基准上 选择其是否是公有
     pub struct Vegetable {
         pub name: String,
-        id: i32,
+        id: i32, // 一旦有个属性是私有的那么就没法 其他mod 中初始化
     }
 
     impl Vegetable {
@@ -28,6 +34,13 @@ mod plant {
                 name: String::from(name),
                 id: 1,
             }
+        }
+    }
+
+    pub fn generate_struct() -> Vegetable {
+        Vegetable {
+            name: String::from("12345"),
+            id: 1,
         }
     }
 }
@@ -59,7 +72,9 @@ mod performance_group {
 mod sound1;
 
 // 将文件分割进不同的文件夹
-mod sound2; // 需要 sound2.rs 在其中包含 sound2 文件夹内容 模块内功
+mod sound2; // 需要 sound2.rs 在其中包含 sound2 文件夹内容 模块内
+
+mod sound3;
 
 pub fn main() {
     // 路径来引用模块树种的项
@@ -103,18 +118,20 @@ pub fn main() {
     use std::collections::HashMap; // 引入HashMap 的习惯用法 而不是 use std::collections; 在使用 collections::HashMap
 
     // 不允许在一个作用域内容 引入两个相同的 模块
-    //     use std::fmt::Result;
-    //     use std::io::Result;
+    // use std::fmt::Result;
+    // use std::io::Result;
 
     // 将两个不同父模块的 Result 类型引入作用域并引用它们
     {
-        //        use std::fmt;
-        //        use std::io;
-        //
-        //        fn function1() -> fmt::Result {
-        //        }
-        //        fn function2() -> io::Result<()> {
-        //        }
+        use std::fmt;
+        use std::io;
+
+        fn function1() -> fmt::Result {
+            Ok(())
+        }
+        fn function2() -> io::Result<()> {
+            Ok(())
+        }
     }
 
     // 使用 as 关键字 重命名引入作用域的类型
@@ -154,7 +171,8 @@ pub fn main() {
     // 使用外部包
     {
         use rand::Rng;
-        let secret_number = rand::thread_rng().gen_range(1, 101);
+        let secret_number = rand::thread_rng().gen_range((1..100));
+        let secret_number = rand::thread_rng().gen_range((1..=100));
         println!("secret_number : {}", secret_number)
     }
 
@@ -186,5 +204,7 @@ pub fn main() {
     }
 
     // 通过模块分割近不同文件
-    sound2::instrument::clarinet()
+    sound2::instrument::clarinet();
+
+    sound3::instrument::clarinet();
 }

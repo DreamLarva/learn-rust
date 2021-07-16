@@ -1,4 +1,4 @@
-#![allow(unused_variables)] // 不对 未使用的变量 warning
+#![allow(unused_variables)] // 不对未使用的变量 warning
 
 pub fn ch05_01_defining_structs() {
     // 定义并实例化结构体
@@ -65,7 +65,7 @@ pub fn ch05_01_defining_structs() {
 
     // 使用没有命名字段的元组结构体来创建不同的类型 （tuple structs）
     // 既然是元祖 当然可以包含不同的类型
-    // 注意就算是两个 元祖结构体的每个类型都相同,也是连个不同的类型 (这是元祖的特性啦)
+    // 注意就算是两个 元祖结构体的每个类型都相同,也是两个不同的类型 (这是元祖的特性啦)
     {
         struct Color(i32, i32, i32);
         struct Point(i32, i32, i32);
@@ -285,6 +285,7 @@ pub fn ch05_03_method_syntax() {
         }
 
         impl Rectangle {
+            // 参数中 没有 &self
             fn square(size: u32) -> Rectangle {
                 Rectangle {
                     width: size,
@@ -297,6 +298,7 @@ pub fn ch05_03_method_syntax() {
     }
 
     // 多个impl 块
+    // 等同于写成一个
     {
         #[derive(Debug)]
         struct Rectangle {
