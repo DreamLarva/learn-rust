@@ -73,7 +73,6 @@ mod tests2 {
 // 当断言失败时，这些宏会使用调试格式打印出其参数，这意味着被比较的值必需实现了 PartialEq 和 Debug trait。
 // 需要实现 Debug 才能在断言失败时打印他们的值。因为这两个 trait 都是派生 trait,
 // 通常可以直接在结构体或枚举上添加 #[derive(PartialEq, Debug)] 注解。
-
 // 想要 参与 asset 比较的 struct 必须要 PartialEq, Debug 这两个 派生 trait
 #[derive(PartialEq, Debug)]
 struct TestStruct {
@@ -93,7 +92,6 @@ mod tests3 {
     fn test_struct() {
         let a = TestStruct { a: 1 };
         let b = TestStruct { a: 1 };
-
         let c = TestStruct { a: 2 };
 
         assert_eq!(a, b);
@@ -179,3 +177,9 @@ mod tests6 {
         }
     }
 }
+
+// 现在 it_works 函数的返回值类型为 Result<(), String>。在函数体中，不同于调用 assert_eq! 宏，而是在测试通过时返回 Ok(())，在测试失败时返回带有 String 的 Err。
+//
+// 这样编写测试来返回 Result<T, E> 就可以在函数体中使用问号运算符，如此可以方便的编写任何运算符会返回 Err 成员的测试。
+//
+// 不能对这些使用 Result<T, E> 的测试使用 #[should_panic] 注解。相反应该在测试失败时直接返回 Err 值。

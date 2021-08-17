@@ -176,6 +176,47 @@ pub fn ch13_01_closures() {
         // 比如说，我们可能需要能够缓存一个获取字符串 slice 并返回 usize 值的闭包的结果。请尝试引入更多
         // 泛型参数来增加 Cacher 功能的灵活性。
         // todo
+
+        // 闭包会捕获其环境
+        // 闭包可以通过三种方式捕获其环境，他们直接对应函数的三种获取参数的方式：获取所有权，可变借用和不可变借用。
+        // 这三种捕获值的方式被编码为如下三个 Fn trait：
+        //  FnOnce 消费从周围作用域捕获的变量，闭包周围的作用域被称为其 环境，environment。为了消费捕获到的变量，闭包必须获取其所有权并在定义闭包时将其移动进闭包。其名称的 Once 部分代表了闭包不能多次获取相同变量的所有权的事实，所以它只能被调用一次。
+        //  FnMut 获取可变的借用值所以可以改变其环境
+        //  Fn 从其环境获取不可变的借用值
+        {
+            fn main() {
+                let x = 4;
+
+                let equal_to_x = |z| z == x;
+
+                let y = 4;
+
+                assert!(equal_to_x(y));
+            }
+        }
+        // 当创建一个闭包时，Rust 根据其如何使用环境中变量来推断我们希望如何引用环境。
+        // 由于所有闭包都可以被调用至少一次，所以所有闭包都实现了 FnOnce 。
+        // 那些并没有移动被捕获变量的所有权到闭包内的闭包也实现了 FnMut ，
+        // 而不需要对被捕获的变量进行可变访问的闭包则也实现了 Fn 。
+        // equal_to_x 闭包不可变的借用了 x（所以 equal_to_x 具有 Fn trait），
+        // 因为闭包体只需要读取 x 的值。
+
+        // 如果你希望强制闭包获取其使用的环境值的所有权，可以在参数列表前使用 move 关键字。
+        // 这个技巧在将闭包传递给新线程以便将数据移动到新线程中时最为实用。
+        {
+            fn main() {
+                let x = vec![1, 2, 3];
+
+                //                          move 关键字 获取 x 的所有权
+                let equal_to_x = move |z| z == x;
+
+                // println!("can't use x here: {:?}", x); // error x 所有权已经被移入 equal_to_x 中
+
+                let y = vec![1, 2, 3];
+
+                assert!(equal_to_x(y));
+            }
+        }
     }
 }
 
@@ -245,7 +286,9 @@ pub fn ch13_02_iterators() {
             style: String,
         }
         fn shoes_in_my_size(shoes: Vec<Shoe>, shoe_size: u32) -> Vec<Shoe> {
+            // into_iter 来创建一个获取 vector 所有权的迭代器
             shoes.into_iter().filter(|s| s.size == shoe_size).collect()
+            // 所以在这里 shoes 已经不能使用了
         }
 
         #[test]
@@ -272,17 +315,22 @@ pub fn ch13_02_iterators() {
                 vec![
                     Shoe {
                         size: 10,
-                        style: String::from("sneaker")
+                        style: String::from("sneaker"),
                     },
                     Shoe {
                         size: 10,
-                        style: String::from("boot")
+                        style: String::from("boot"),
                     },
                 ]
             );
         }
     }
     // 实现 Iterator  trait 来创建自定义迭代器
+    // 我们已经展示了可以通过在 vector 上调用 iter、into_iter 或 iter_mut 来创建一个迭代器。
+    // 也可以用标准库中其他的集合类型创建迭代器，比如哈希 map。
+    // 另外，可以实现 Iterator trait 来创建任何我们希望的迭代器。
+    // 正如之前提到的，定义中唯一要求提供的方法就是 next 方法。
+    // 一旦定义了它，就可以使用所有其他由 Iterator trait 提供的拥有默认实现的方法来创建自定义迭代器了！
     {
         struct Counter {
             count: u32,
@@ -293,6 +341,7 @@ pub fn ch13_02_iterators() {
             }
         }
         impl Iterator for Counter {
+            // 迭代器的关联类型 Item 设置为 u32，意味着迭代器会返回 u32 值集合
             type Item = u32;
             fn next(&mut self) -> Option<Self::Item> {
                 self.count += 1;
@@ -317,14 +366,14 @@ pub fn ch13_02_iterators() {
         // 使用自定义的 Iterator trait 方法
         // 通过定义 next 方法实现 Iterator trait，我们现在就可以使用任何标准库定义的拥有默认实现的
         // Iterator trait 方法了，因为他们都使用了 next 方法的功能。
-        // 这里是 zip 方法 传入一个 trait IntoIterator的实现 返回一个 Iterator
+        // 这里是 zip 方法 传入一个 trait IntoIterator的实现 返回一个 Iterator 枚举(Iterator1,Iterator2)
         let sum: u32 = Counter::new()
             .zip(Counter::new().skip(1)) // 注意 zip 只产生四对值
+            // 理论上第五对值 (5, None) 从未被产生，因为 zip 在任一输入迭代器返回 None 时也返回 None
             .map(|(a, b)| a * b)
             .filter(|x| x % 3 == 0)
             .sum();
-
-        println!("{:?}", sum);
+        assert_eq!(18, sum);
     }
 }
 
@@ -338,4 +387,20 @@ fn iterator_demonstration() {
     assert_eq!(v1_iter.next(), Some(&2));
     assert_eq!(v1_iter.next(), Some(&3));
     assert_eq!(v1_iter.next(), None);
+}
+
+pub fn ch13_04_performance(buffer: &mut [i32], coefficients: [i64; 12], qlp_shift: i16) {
+    // 为了计算 prediction 的值，这些代码遍历了 coefficients 中的 12 个值，
+    // 使用 zip 方法将系数与 buffer 的前 12 个值组合在一起。
+    // 接着将每一对值相乘，再将所有结果相加，然后将总和右移 qlp_shift 位。
+    for i in 12..buffer.len() {
+        let prediction = coefficients
+            .iter()
+            .zip(&buffer[i - 12..i]) // 等同于 (i - 12)..i
+            .map(|(&c, &s)| c * s as i64)
+            .sum::<i64>()
+            >> qlp_shift;
+        let delta = buffer[i];
+        buffer[i] = prediction as i32 + delta;
+    }
 }

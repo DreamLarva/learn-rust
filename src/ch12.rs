@@ -17,18 +17,18 @@ use std::process;
 //      调用 lib.rs 中的 run 函数
 //      如果 run 返回错误，则处理这个错误
 
-struct Config {
-    query: String,
-    filename: String,
+struct Config<'a> {
+    query: &'a String,
+    filename: &'a String,
 }
 
-impl Config {
+impl Config<'_> {
     fn new(args: &[String]) -> Result<Config, &'static str> {
         if args.len() < 3 {
             return Err("not enough arguments");
         }
-        let query = args[1].clone();
-        let filename = args[2].clone();
+        let query = &args[1];
+        let filename = &args[2];
 
         // Config 类型 要的类型 都是用完整的 所有权 所以必须上面 那两个解的 只能 clone 了
         Ok(Config { query, filename })

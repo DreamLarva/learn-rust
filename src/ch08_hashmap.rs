@@ -88,7 +88,7 @@ pub fn ch08_03_hash_maps() {
 
         println!("{:?}", scores);
     }
-    // 根据就值 更新一个值
+    // 根据旧值 更新一个值
     {
         let text = "hello world wonderful world";
 

@@ -14,7 +14,7 @@ pub fn ch09_01_unrecoverable_errors_with_panic() {
     {
         // panic!("crash and burn"); // 抛出错误
     }
-    //  当出现 panic 时，程序默认会开始 展开（unwinding），
+    // 当出现 panic 时，程序默认会开始 展开（unwinding），
     // 这意味着 Rust 会回溯栈并清理它遇到的每一个函数的数据，不过这个回溯并清理的过程有很多工作。
     // 另一种选择是直接 终止（abort），这会不清理数据就退出程序。
     // 那么程序所使用的内存需要由操作系统来清理。
@@ -58,11 +58,13 @@ pub fn ch09_02_recoverable_errors_with_result() {
             },
         };
     }
-    // 个更老练的 Rustacean 可能会这么写
+    // 更老练的 Rustacean 可能会这么写
     {
         let f = File::open("hello.txt").unwrap_or_else(|error| {
             if error.kind() == ErrorKind::NotFound {
                 File::create("hello.txt").unwrap_or_else(|error| {
+                    // 如果不 panic!的话
+                    // 也可以返回一个 File 类型 到外层
                     panic!("Tried to create file but there was a problem: {:?}", error);
                 })
             } else {
@@ -75,10 +77,10 @@ pub fn ch09_02_recoverable_errors_with_result() {
     {
         // 如果 Result 值是成员 Ok，unwrap 会返回 Ok 中的值。
         // 如果 Result 是成员 Err，unwrap 会为我们调用 panic!。
-        let f = File::open("hello1.txt").unwrap();
+        // let f = File::open("hello1.txt").unwrap(); // panic
 
         // 使用 expect 而不是 unwrap 并提供一个好的错误信息可以表明你的意图并更易于追踪 panic 的根源。
-        let f = File::open("hello1.txt").expect("Failed to open hello.txt");
+        // let f = File::open("hello1.txt").expect("Failed to open hello.txt");
     }
 
     // 传播错误
@@ -109,7 +111,7 @@ pub fn ch09_02_recoverable_errors_with_result() {
         }
     }
 
-    // 传播错误的简写 : ?
+    // 传播错误的简写 ?
     {
         fn read_username_from_file_origin() -> Result<String, io::Error> {
             let f = File::open("hello.txt");
@@ -196,23 +198,23 @@ pub fn ch09_03_to_panic_or_not_to_panic() {
         let home: IpAddr = "127.0.0.1".parse().unwrap(); // 我们知道绝对不会报错 但是编译器不知道仍然返回是Result 所以用 unwrap 而不是 ?
     }
 
-    // 错误处理知道原则
+    // # 错误处理知道原则
     // 在当有可能会导致有害状态的情况下建议使用 panic! —— 在这里，有害状态是指当一些假设、
     // 保证、协议或不可变性被打破的状态，例如无效的值、自相矛盾的值或者被传递了不存在的值 ——
     // 外加如下几种情况：
-    //  有害状态并不包含 预期 会偶尔发生的错误
-    //  之后的代码的运行依赖于处于这种有害状态
-    //  当没有可行的手段来将有害状态信息编码进所使用的类型中的情况
-
+    // * 有害状态并不包含 预期 会偶尔发生的错误
+    // * 之后的代码的运行依赖于处于这种有害状态
+    // * 当没有可行的手段来将有害状态信息编码进所使用的类型中的情况
+    //
     // 如果别人调用你的代码并传递了一个没有意义的值，最好的情况也许就是 panic! 并警告使用你的
     // 库的人他的代码中有 bug 以便他能在开发时就修复它。类似的，panic! 通常适合调用不能够控制
     // 的外部代码时，这时无法修复其返回的无效状态。
-
+    //
     // 然而当错误预期会出现时，返回 Result 仍要比调用 panic! 更为合适。这样的例子包括解析器接
     // 收到错误数据，或者 HTTP 请求返回一个表明触发了限流的状态。在这些例子中，应该通过返回
     // Result 来表明失败预期是可能的，这样将有害状态向上传播，调用者就可以决定该如何处理这个问
     // 题。使用 panic! 来处理这些情况就不是最好的选择。
-
+    //
     // 当代码对值进行操作时，应该首先验证值是有效的，并在其无效时 panic!。这主要是出于安全的原
     // 因：尝试操作无效数据会暴露代码漏洞，这就是标准库在尝试越界访问数组时会 panic! 的主要原
     // 因：尝试访问不属于当前数据结构的内存是一个常见的安全隐患。函数通常都遵循 契约（contracts）
@@ -220,7 +222,7 @@ pub fn ch09_03_to_panic_or_not_to_panic() {
     // 常代表调用方的 bug，而且这也不是那种你希望调用方必须处理的错误。事实上也没有合理的方式来
     // 恢复调用方的代码：调用方的 程序员 需要修复其代码。函数的契约，尤其是当违反它会造成 panic
     // 的契约，应该在函数的 API 文档中得到解释。
-
+    //
     // 虽然在所有函数中都拥有许多错误检查是冗长而烦人的。幸运的是，可以利用 Rust 的类型系统（以
     // 及编译器的类型检查）为你进行很多检查。如果函数有一个特定类型的参数，可以在知晓编译器已经
     // 确保其拥有一个有效值的前提下进行你的代码逻辑。例如，如果你使用了一个不同于 Option 的类型

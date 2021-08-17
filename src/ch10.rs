@@ -1,7 +1,7 @@
 #![allow(unused_variables)] // 不对 未使用的变量 warning
 
 pub fn ch10_00_generics() {
-    // 这里入参的类型 是 &数组
+    // 这里入参的类型 是 &切片 使用切片的时候必定 有&
     fn largest(list: &[i32]) -> i32 {
         let mut largest = list[0]; // Copy 操作
 
@@ -21,7 +21,7 @@ pub fn ch10_00_generics() {
     println!("The largest number is {}", result);
     assert_eq!(result, 100);
 
-    // 数组
+    // 切片
     let number_list = [102, 34, 6000, 89, 54, 2, 43, 8];
 
     let result = largest(&number_list);
@@ -66,9 +66,9 @@ pub fn ch10_01_syntax() {
             x: T,
             y: T,
         }
-        // 注意必须在 impl 后面声明 T,，这样就可以在 Point<T> 上实现的方法中使用它了
-        impl<T> Point<T> {
-            fn x(&self) -> &T {
+        // 注意必须在 impl 后面声明 T，这样就可以在 Point<A> 上实现的方法中使用它了
+        impl<A> Point<A> {
+            fn x(&self) -> &A {
                 &self.x
             }
         }
@@ -219,8 +219,9 @@ pub fn ch10_02_traits() {
         let tweet1 = Tweet { a: 2, b: 1 };
         tweet1.summarize2(1);
 
-        // 有 summarize1 方法`
+        // 只有 summarize1 方法`
         let tweet2 = Tweet { a: true, b: true };
+        tweet2.summarize1();
     }
 
     // 实现 trait 时需要注意的一个限制是，只有当 trait 或者要实现 trait 的类型位于 crate 的本地作用域时，才能为该类型实现 trait。
@@ -237,6 +238,7 @@ pub fn ch10_02_traits() {
     {
         // 有时为 trait 中的某些或全部方法提供默认的行为，而不是在每个类型的每个实现中都定义自己的行为是很有用的。这样当为某个特定类型实现 trait 时，可以选择保留或重载每个方法的默认行为。
         pub trait Summary {
+            // 有默认实现
             fn summarize(&self) -> String {
                 String::from("(Read more...)")
             }
@@ -401,7 +403,7 @@ pub fn ch10_02_traits() {
         }
         pub fn notify2<T: Summary + Display>(item: T) {}
 
-        // notify1(article)
+        notify1(article)
     }
 
     // 通过where 简化代码
@@ -427,6 +429,12 @@ pub fn ch10_02_traits() {
     // 不能再出现 返回两种类型 但这两种类型都 实现了 trait 因为编译器没法确切判断返回的是哪个
     {
         pub struct Tweet {
+            pub username: String,
+            pub content: String,
+            pub reply: bool,
+            pub retweet: bool,
+        }
+        pub struct Tweet2 {
             pub username: String,
             pub content: String,
             pub reply: bool,
@@ -783,6 +791,13 @@ pub fn ch10_03_lifetime_syntax() {
             //     println!("Attention please: {}", announcement);
             //     self.part
             // }
+        }
+
+        // 用不到 ImportantExcerpt 的生命周期 的时候的简写
+        impl ImportantExcerpt<'_> {
+            fn a(&self, announcement: &str) -> &str {
+                self.part
+            }
         }
     }
 

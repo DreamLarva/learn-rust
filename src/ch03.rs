@@ -16,6 +16,9 @@ pub fn ch03_02_data_types() {
 
     // let guess = "42".parse().expect("Not a number!");  // 这句会报错 编译器没法推断出类型
     let guess: u32 = "42".parse().expect("Not a number!");
+    // let guess: u32 = "42.1223".parse().expect("Not a number!"); // 精度更高 运行时也会报错
+    let guess = "43.21".parse::<f64>().expect("Not a number!"); // 定类型的写法, 变量之后就不用声明了
+
     // let guess: u8 = "-42".parse().expect("Not a number!"); // 运行时报错
     // let guess: u8 = "4222222222222222".parse().expect("Not a number!"); // 运行时报错
     println!("guess : {}", guess);
@@ -124,7 +127,7 @@ pub fn ch03_02_data_types() {
     let a = [1, 2, 3, 4, 5];
     let index = 10;
 
-    let element = a[index]; // 不报错 但是运行时报错
+    // let element = a[index]; // 不报错 但是运行时报错
 }
 
 // function 的名字 必须是 snake case
@@ -232,7 +235,7 @@ pub fn ch03_05_control_flow() {
         // 编译器是不能判断 会不会越界 而添加更多的 代码来校验并抛出可能的错误
         println!("{}!", number);
 
-        number = number - 1;
+        number -= 1;
     }
 
     // 最推荐的 循环 for 有效避免 数据越界

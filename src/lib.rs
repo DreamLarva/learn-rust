@@ -1,5 +1,11 @@
 // lib.rs 使用写 库 就是为了写给其他人调用
+//! # 注释包含项的结构
+//!
+//! 这些文案会出现在 目录的部分
+//! `my_crate` is a collection of utilities to make performing certain
+//! calculations more convenient.
 
+/// 缩略标题
 pub fn setup() {
     // 编写特定库测试所需的代码
 }
@@ -154,16 +160,22 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(args: &[String]) -> Result<Config, &'static str> {
-        if args.len() < 3 {
-            return Err("not enough arguments");
-        }
-        let query = args[1].clone();
-        let filename = args[2].clone();
-        // 由环境变量 CASE_INSENSITIVE 决定是否大小写敏感
+    pub fn new(mut args: std::env::Args) -> Result<Config, &'static str> {
+        // 使用 迭代器
+        args.next();
+
+        let query = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a query string"),
+        };
+
+        let filename = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a file name"),
+        };
+
         let case_sensitive = env::var("CASE_INSENSITIVE").is_err();
 
-        // Config 类型 要的类型 都是用完整的 所有权 所以必须上面 那两个解的 只能 clone 了
         Ok(Config {
             query,
             filename,
@@ -194,13 +206,10 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 
 //  &String 会自动转成 &str  两个参数手动处理所有权
 pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let mut results = Vec::new();
-    for line in contents.lines() {
-        if line.contains(query) {
-            results.push(line);
-        }
-    }
-    results
+    contents
+        .lines()
+        .filter(|line| line.contains(query))
+        .collect()
 }
 
 pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
@@ -240,5 +249,67 @@ trust me.";
             vec!["Rust:", "trust me."],
             search_case_insensitive(query, contents)
         )
+    }
+}
+/// 编写有用的文档注释
+/// Adds one to the number given.
+///
+/// # Examples
+///
+/// ```
+/// let arg = 5;
+/// let answer = the_rust_programming_language::add_one(arg);
+///
+/// assert_eq!(6, answer);
+/// ```
+pub fn add_one(x: i32) -> i32 {
+    x + 1
+}
+// 可以运行 cargo doc 来生成这个文档注释的 HTML 文档。
+// 这个命令运行由 Rust 分发的工具 rustdoc 并将生成的 HTML 文档放入 target/doc 目录。
+// 运行 cargo doc --open 会构建当前 crate 文档（同时还有所有 crate 依赖的文档）的 HTML 并在浏览器中打开
+
+// # Examples Markdown 标题在 HTML 中创建了一个以 “Examples” 为标题的部分
+// Panics：这个函数可能会 panic! 的场景。并不希望程序崩溃的函数调用者应该确保他们不会在这些情况下调用此函数。
+// Errors：如果这个函数返回 Result，此部分描述可能会出现何种错误以及什么情况会造成这些错误，这有助于调用者编写代码来采用不同的方式处理不同的错误。
+// Safety：如果这个函数使用 unsafe 代码（这会在第十九章讨论），这一部分应该会涉及到期望函数调用者支持的确保 unsafe 块中代码正常工作的不变条件（invariants）。
+
+// 文档注释作为测试
+// 运行 cargo test 所有文档里面的案例 也会像测试一样运行
+// 牛逼啊
+
+// 使用 pub use 导出合适的公有 API
+// 你可以选择使用 pub use 重导出（re-export）项来使公有结构不同于私有结构。重导出获取位于一个位置的公有项并将其公开到另一个位置，好像它就定义在这个新位置一样。
+
+// 重新导出到目录
+// 会显示在 Re-exports 这栏
+pub use self::kinds::PrimaryColor;
+pub use self::kinds::SecondaryColor;
+pub use self::utils::mix;
+
+pub mod kinds {
+    /// The primary colors according to the RYB color model.
+    pub enum PrimaryColor {
+        Red,
+        Yellow,
+        Blue,
+    }
+
+    /// The secondary colors according to the RYB color model.
+    pub enum SecondaryColor {
+        Orange,
+        Green,
+        Purple,
+    }
+}
+
+pub mod utils {
+    use crate::kinds::*;
+
+    /// Combines two primary colors in equal amounts to create
+    /// a secondary color.
+    pub fn mix(c1: PrimaryColor, c2: PrimaryColor) -> SecondaryColor {
+        // --snip--
+        SecondaryColor::Green
     }
 }

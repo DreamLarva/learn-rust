@@ -177,7 +177,7 @@ pub fn ch04_02_references_and_borrowing() {
         fn main() {
             let mut s = String::from("hello");
 
-            // 可以两个 因为不是同时的 且不是同时保有 s 的
+            // 可以两个 因为是同步的 且不是同时保有 s 的
             change(&mut s);
             change(&mut s);
 
@@ -201,13 +201,12 @@ pub fn ch04_02_references_and_borrowing() {
     }
     // 我们 也不能在拥有不可变引用的同时拥有可变引用。
     // 因为已经使用的不可变引用的 部分 一定不希望出现 在可变引用使值发生改变
-    //
     {
         let mut s = String::from("hello");
 
         let r1 = &s; // no problem
         let r2 = &s; // no problem
-        let r3 = &mut s; // BIG PROBLEM
+        let r3 = &mut s; // BIG PROBLEM 编译和检查时并不会报错
 
         // println!("{}, {}, and {}", r1, r2, r3); // error
     }

@@ -97,6 +97,10 @@ pub fn ch08_01_vectors() {
             *i += 50; // 为了修改可变引用所指向的值，在使用 += 运算符之前必须使用解引用运算符（*）获取 i 中的值
             println!("{}", i);
         }
+        for i in v.iter_mut() {
+            *i += 50; // 为了修改可变引用所指向的值，在使用 += 运算符之前必须使用解引用运算符（*）获取 i 中的值
+            println!("{}", i);
+        }
     }
 
     // 使用枚举来存储多种类型
@@ -117,9 +121,10 @@ pub fn ch08_01_vectors() {
 
         let some_data = row.pop(); // pop 弹出一个元素
 
-        // 牛啊 直接判断 Int 的分支是不会进入的
+        // 牛啊 直接判断 Int Text 的分支是不会进入的
         match &some_data {
             Float => (),
+            Text => (),
             Int => (),
         }
         println!("{:?}", some_data.unwrap());
@@ -142,12 +147,15 @@ pub fn ch08_01_vectors() {
 
         // extend 是 std::iter::Extend
         // 类似js 的 concat
-        vec.extend([1, 2, 3].iter().copied());
+        vec.extend([1]);
+        vec.extend(&[2]);
+        vec.extend([3].iter().copied());
+        vec.extend([4].iter());
 
         for x in &vec {
             println!("{}", x);
         }
-        assert_eq!(vec, [7, 1, 2, 3]);
+        assert_eq!(vec, [7, 1, 2, 3, 4]);
     }
     // 使用 vec! 宏生成
     {
@@ -233,7 +241,7 @@ pub fn ch08_01_vectors() {
     }
     // pub fn into_boxed_slice(self) -> Box<[T], Global>
     // 将数组转换成 Box<[T]>
-    // 任何多余的 opacity 都会被丢弃
+    // 任何多余的 capacity 都会被丢弃
     {
         let v = vec![1, 2, 3];
         let slice = v.into_boxed_slice();
@@ -318,11 +326,13 @@ pub fn ch08_01_vectors() {
         vec.retain(|_| (keep[i], i += 1).0);
         assert_eq!(vec, [2, 3, 5]);
     }
-    // pub fn dedup_by_key<F, K>(&mut self, key: F)
-    // where
-    //     F: FnMut(&mut T) -> K,
-    //     K: PartialEq<K>,
-    // 移除vec中 调用F方法后 相同返回值中的多余一个的其他元素
+    /// ```
+    /// pub fn dedup_by_key<F, K>(&mut self, key: F)
+    /// where
+    ///     F: FnMut(&mut T) -> K,
+    ///     K: PartialEq<K>,
+    /// ```
+    /// 移除vec中 调用F方法后 相同返回值中的多余一个的其他元素
     {
         let mut vec = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
@@ -367,7 +377,7 @@ pub fn ch08_01_vectors() {
     }
 
     // pub fn pop(&mut self) -> Option<T>
-    // 删除并反悔啊 vec 的最后一个元素, 如果vec没有元素 则返回none
+    // 删除并弹出啊 vec 的最后一个元素, 如果vec没有元素 则返回none
     {
         let mut vec = vec![1, 2, 3];
         assert_eq!(vec.pop(), Some(3));
@@ -459,7 +469,7 @@ pub fn ch08_01_vectors() {
     // pub fn leak<'a>(self) -> &'a mut [T]
     // where
     //     T: 'a,
-    // 消耗并 leak 并 leak vec,返回一个 可变的内容的引用
+    // 消耗并 leak vec,返回一个 可变的内容的引用
     // Note that the type T must outlive the chosen lifetime 'a.
     // If the type has only static references, or none at all, then this may be chosen to be 'static.
     // This function is similar to the leak function on Box except that there is no way to recover the leaked memory.
@@ -636,7 +646,7 @@ pub fn ch08_01_vectors() {
     }
 
     // pub fn reverse(&mut self)
-    // 反转vec
+    // 反转vec 原地修改
     {
         let mut v = [1, 2, 3];
         v.reverse();

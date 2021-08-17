@@ -25,8 +25,18 @@ mod ch11_02;
 mod ch11_03;
 mod ch12;
 mod ch13;
+mod ch14;
+mod ch15;
+mod ch15_02;
+mod ch15_03;
+mod ch15_04;
+mod ch16;
+mod ch17;
+mod ch18;
 
 // 引用当前的 crate 也就是 lib 中的内容, 使用的文件名就是 当前项目的名字
+use std::cell::{Ref, RefCell};
+use std::rc::Rc;
 use the_rust_programming_language::Config;
 
 pub fn main() {
@@ -54,7 +64,7 @@ pub fn main() {
     // ch07::main()
 
     // ch08_vec::ch08_01_vectors();
-    ch08_string::ch08_02_strings();
+    // ch08_string::ch08_02_strings();
     // ch08_hashmap::ch08_03_hash_maps();
 
     // ch09::ch09_01_unrecoverable_errors_with_panic();
@@ -65,8 +75,11 @@ pub fn main() {
     // ch10::ch10_02_traits();
     // ch10::ch10_03_lifetime_syntax();
 
-    // let args: Vec<_> = env::args().collect();
-    // let config = Config::new(&args).unwrap_or_else(|err| {
+    // ch13::ch13_01_closures();
+    // ch13::ch13_02_iterators();
+
+    // 用迭代器改进后
+    // let config = Config::new(env::args()).unwrap_or_else(|err| {
     //     // eprintln! 宏来打印到标准错误流 否则如果输出到文件的话,会将错误信息输出到文件
     //     eprintln!("problem parsing arguments: {}", err);
     //     process::exit(1)
@@ -80,6 +93,20 @@ pub fn main() {
     //     process::exit(1);
     // }
 
-    // ch13::ch13_01_closures();
-    // ch13::ch13_02_iterators();
+    // ch15::ch15_02_deref();
+    // ch15::ch15_03_drop();
+    // ch15::ch15_04_rc();
+    // ch15_02::main();
+    // ch15_03::main()
+    // ch15_04::main();
+
+    // ch16::ch16_01_threads();
+    // ch16::ch16_02_message_passing();
+    // ch16::ch16_03_shared_state();
+
+    // ch17::ch17_01whatis_oo();
+    // ch17::ch17_02_trait_objects();
+    // ch17::ch17_03_oo_design_patterns();
+
+    ch18::ch18_03_pattern_syntax();
 }

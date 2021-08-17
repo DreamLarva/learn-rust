@@ -6,4 +6,10 @@ edition = "2018"
 
 [dependencies]
 rand = "0.8.3"
-adder = "0.1.0"
+#adder = "0.1.0"
+
+[workspace]
+members = [
+    "adder",
+    "add-one",
+]
