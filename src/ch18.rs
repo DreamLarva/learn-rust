@@ -70,6 +70,10 @@ pub fn ch18_01_all_the_places_for_patterns() {
 
         // let (x, y) = (1, 2, 3); // error
         let (x, y, _) = (1, 2, 3);
+
+        let (x, y) = (y, x);
+        assert_eq!(x, 2);
+        assert_eq!(y, 1);
     }
 
     // 函数参数
@@ -171,6 +175,26 @@ pub fn ch18_03_pattern_syntax() {
             Point { x, y } => println!("On neither axis:({},{})", x, y),
         }
         // On the y axis at 7
+    }
+    // @钱绑定后解构（Rust1.56新增）
+    {
+        #[derive(Debug)]
+        struct Point {
+            x: i32,
+            y: i32,
+        }
+
+        // 等同于 解构 后 还保留完整的对象变量
+        let p @ Point { x: px, y: py } = Point { x: 10, y: 23 };
+        println!("x:{},y:{}", px, py);
+        println!("{:?}", p);
+
+        let point = Point { x: 10, y: 10 };
+        if let p @ Point { x: 10, y } = point {
+            println!("x is 10 and y is {} in {:?}", y, p);
+        } else {
+            println!("x is not 10");
+        }
     }
 
     // 结构枚举

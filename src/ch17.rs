@@ -39,7 +39,8 @@ pub fn ch17_02_trait_objects() {
         fn draw(&self);
     }
 
-    // 这与定义使用了带有 trait bound 的泛型类型参数的结构体不同。泛型类型参数一次只能替代一个具体类型，而 trait 对象则允许在运行时替代多种具体类型。
+    // 这与定义使用了带有 trait bound 的泛型类型参数的结构体不同。
+    // 泛型类型参数一次只能替代一个具体类型，而 trait 对象则允许在运行时替代多种具体类型。
     pub struct Screen {
         pub components: Vec<Box<dyn Draw>>,
     }
@@ -51,12 +52,14 @@ pub fn ch17_02_trait_objects() {
             }
         }
     }
-    // 使用 trait bound
+
+    // region 使用 trait bound(不正确)
     {
         // 这限制了 Screen 实例必须拥有一个全是 Button 类型或者全是 TextField 类型的组件列表。
         // 如果只需要同质（相同类型）集合，则倾向于使用泛型和 trait bound，
         // 因为其定义会在编译时采用具体类型进行单态化。
         pub struct Screen<T: Draw> {
+            // T 一次只能指代一种类型
             pub components: Vec<T>,
         }
 
@@ -66,11 +69,13 @@ pub fn ch17_02_trait_objects() {
         {
             pub fn run(&self) {
                 for component in self.components.iter() {
+                    // 这里的 component 只能是一种类型
                     component.draw();
                 }
             }
         }
     }
+    // endregion
 
     pub struct Button {
         pub width: u32,
@@ -120,7 +125,7 @@ pub fn ch17_02_trait_objects() {
     // trait 对象执行动态分发
     // 当对泛型使用 trait bound 时编译器所进行单台化处理: 编译器为每一个被泛型类型参数代替的具体类型生成了非泛型的函数和方法实现.
     // 单态化所产生的代码进行 静态分发(static dispatch). 静态分发发生于编译器在编译时就知晓调用了什么方法的时候.
-    // 这鱼动态分发(dynamic dispatch)相对,这是编译器在编译时无法知晓调用了什么方法.
+    // 这与动态分发(dynamic dispatch)相对,这是编译器在编译时无法知晓调用了什么方法.
     // 在动态分发的情况下,编译器会生成在运行时去调用了什么方法的代码的代码.
 
     // 当使用 trait 对象时,Rust 必须使用动态分发.编译器无法知晓所有可能用于 trait对象代码的类型,所以它也不知道应该调用那个类型的哪个方法实现.

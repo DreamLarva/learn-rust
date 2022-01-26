@@ -53,9 +53,11 @@ pub fn minigrep() {
     }
 }
 
-// Box<dyn Error> 意味着函数会返回实现了 Error trait 的类型，
+// Box<dyn Error> 意味着函数会返回 任意实现了 Error trait 的类型，
 // 不过无需指定具体将会返回的值的类型。这提供了在不同的错误场景可能有不同类型的错误返回值的灵活性。
 // 这也就是 dyn，它是 “动态的”（“dynamic”）的缩写。
+// 默认的情况就是 dyn, 你不写 编译器会提示你 要加上
+// dyn 一般都用在返回类型上, 而 impl 一般用在 入参或者其他位置上
 fn run(config: Config) -> Result<(), Box<dyn Error>> {
     // 直接给文件名 默认是从 根目录 开始找
     let contents = fs::read_to_string(config.filename)?;

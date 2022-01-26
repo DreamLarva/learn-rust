@@ -114,6 +114,7 @@ pub fn ch03_02_data_types() {
         "November",
         "Dec",
     ];
+    let bytes = b"abcdefg"; // Char数组
 
     println!("{}", months[0]);
 

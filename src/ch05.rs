@@ -62,12 +62,43 @@ pub fn ch05_01_defining_structs() {
             };
         */
     }
+    {
+        #[derive(Debug)]
+        struct User {
+            active: bool,
+            username: String,
+            email: String,
+            sign_in_count: u64,
+        }
+        let user1 = User {
+            email: String::from("someone@example.com"),
+            username: String::from("someusername123"),
+            active: true,
+            sign_in_count: 1,
+        };
+        let user2 = User {
+            active: user1.active,
+            username: user1.username,
+            email: String::from("another@example.com"),
+            sign_in_count: user1.sign_in_count,
+        };
+        // 与上面 完全相同
+        // let user2 = User {
+        //     email: String::from("another@example.com"),
+        //     ..user1
+        // };
+
+        println!("{}", user1.active);
+        // println!("{}", user1.username); // error
+        // println!("{:?}", user1); // error 移动了其中的一部分也不行
+    }
 
     // 使用没有命名字段的元组结构体来创建不同的类型 （tuple structs）
     // 既然是元祖 当然可以包含不同的类型
     // 注意就算是两个 元祖结构体的每个类型都相同,也是两个不同的类型 (这是元祖的特性啦)
     {
         struct Color(i32, i32, i32);
+        #[derive(Debug)]
         struct Point(i32, i32, i32);
         struct AnotherTupleStruct(i8, i16, i32);
 
@@ -79,8 +110,12 @@ pub fn ch05_01_defining_structs() {
         // println!("{}", origin.0);
         // println!("{}", origin.1);
 
-        // todo 怎么没法解构呢 x 没法判断类型
-        let (x) = &origin;
+        if let Point(10, y, ..) = origin {
+            println!("x is 10 and y is {y}");
+        }
+        if let p @ Point(10, y, _) = origin {
+            println!("x is 10 and y is {y} in {p:?}");
+        }
     }
 
     // 没有任何字段类单元结构体
@@ -167,10 +202,14 @@ pub fn ch05_02_example_structs() {
         }
         let rect1 = Rectangle {
             width: 30,
-            height: 50,
+            height: dbg!(30),
+            // dbg! 宏接收一个表达式的所有权，打印出代码中调用 dbg! 宏时所在的文件和行号，以及该表达式的结果值，并返回该值的所有权。
+            // dbg! 宏会打印到标准错误控制台流（stderr），与 println! 不同，后者会打印到标准输出控制台流（stdout）
         };
-
-        println!("{:?}", rect1);
+        dbg!(&rect1);
+        println!("{rect1:?}");
+        // 更好的打印格式 :#?
+        println!("{rect1:#?}");
         println!(
             "The area of the rectangle is {} square pixels.",
             area(&rect1)
@@ -210,7 +249,12 @@ pub fn ch05_03_method_syntax() {
             }
             // self 作为第一个参数来使方法获取实例的所有权是很少见的；
             // 这种技术通常用在当方法将 self 转换成别的实例的时候，这时我们想要防止调用者在转换之后使用原始的实例。
-            fn test1(self) {}
+            fn test1(self) -> Self {
+                Self {
+                    height: 1,
+                    width: 1,
+                }
+            }
         }
 
         let rect1 = Rectangle {
@@ -234,7 +278,9 @@ pub fn ch05_03_method_syntax() {
             height: 50,
         };
         rect2.set_height(100);
-        println!("rect2 height : {}", rect2.height)
+        println!("rect2 height : {}", rect2.height);
+        let rect3 = rect2.test1();
+        // println!("rect2 height : {}", rect2.height); // error  rect2 已经被move 了
     }
 
     // 带有更多参数的方法

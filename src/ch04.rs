@@ -1,6 +1,5 @@
-#![allow(unused_variables)]
+#![allow(unused_variables)] // 不对 未使用的变量 warning
 
-// 不对 未使用的变量 warning
 /// 对于rust 一个值在 堆上或者在栈上很重要,这影响了 rust 所有权的相关操作.
 ///
 /// 栈和堆都是代码可用的内存,但是他们结构并不相同.
@@ -112,7 +111,7 @@ pub fn ch04_01_what_is_ownership() {
 
             let s2 = String::from("hello"); // s2 进入作用域
 
-            let s3 = takes_and_gives_back(s2); // s2 被移动到
+            let s3 = takes_and_gives_back(s2); // s2 被移动
 
             // takes_and_gives_back 中,
             // 它也将返回值移给 s3
@@ -174,7 +173,7 @@ pub fn ch04_02_references_and_borrowing() {
     //  至少有一个指针被用来写入数据。
     //  没有同步数据访问的机制。
     {
-        fn main() {
+        {
             let mut s = String::from("hello");
 
             // 可以两个 因为是同步的 且不是同时保有 s 的
@@ -183,8 +182,15 @@ pub fn ch04_02_references_and_borrowing() {
 
             println!("{}", s)
         }
+        {
+            let mut s = String::from("hello");
+            let a = &mut s;
+            let b = &mut s;
 
-        main();
+            // 使用的时候才会报错 b 不应该也是 &mut
+            // a.push_str("1");
+            // println!("{a} {b}");
+        }
 
         fn change(some_string: &mut String) {
             some_string.push_str(", world");
@@ -206,11 +212,13 @@ pub fn ch04_02_references_and_borrowing() {
 
         let r1 = &s; // no problem
         let r2 = &s; // no problem
-        let r3 = &mut s; // BIG PROBLEM 编译和检查时并不会报错
+                     // let r3 = &mut s; // BIG PROBLEM 编译和检查时并不会报错 使用时才会报错
 
-        // println!("{}, {}, and {}", r1, r2, r3); // error
+        println!("{r1} , {r2}");
+        // println!("{r1}, {r2}, and {r3}"); // error
     }
-    // 在具有指针的语言中，很容易通过释放内存时保留指向它的指针而错误地生成一个 悬垂指针（dangling pointer），所谓悬垂指针是其指向的内存可能已经被分配给其它持有者。
+    // 在具有指针的语言中，很容易通过释放内存时保留指向它的指针而错误地生成一个 悬垂指针（dangling pointer），
+    // 所谓悬垂指针是其指向的内存可能已经被分配给其它持有者。
     // 相比之下，在 Rust 中编译器确保引用永远也不会变成悬垂状态：当你拥有一些数据的引用，编译器确保数据不会在其引用之前离开作用域。
     {
         // fn main() {
@@ -271,6 +279,19 @@ pub fn ch04_03_slices() {
         // 如果尝试从一个多字节字符的中间位置创建字符串 slice，则程序将会因错误而退出。
         // 出于介绍字符串 slice 的目的，本部分假设只使用 ASCII 字符集；
         // 第八章的 “使用字符串存储 UTF-8 编码的文本” 部分会更加全面的讨论 UTF-8 处理问题。
+    }
+    {
+        let s = String::from("hello");
+
+        let len = s.len();
+
+        let slice = &s[0..len];
+        // 等同于
+        let slice = &s[..];
+
+        let slice = &s[..len];
+        // 等同于
+        let slice = &s[0..len];
     }
     {
         // 传入切片类型 返回 切片

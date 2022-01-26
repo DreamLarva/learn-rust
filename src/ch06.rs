@@ -287,3 +287,20 @@ pub fn ch06_03_if_let() {
         }
     }
 }
+
+// 使用 matches！宏匹配
+pub fn ch06_03_matches() {
+    enum MyEnum {
+        Foo,
+        Bar,
+    }
+    let v = vec![MyEnum::Foo, MyEnum::Bar, MyEnum::Foo];
+    // v.iter().filter(|x| x == MyEnum::Foo); // rust 中不能使用 == 来匹配枚举
+    v.iter().filter(|x| matches!(x, MyEnum::Foo));
+
+    let foo = 'f';
+    assert!(matches!(foo, 'A'..='Z' | 'a'..='z'));
+
+    let bar = Some(4);
+    assert!(matches!(bar, Some(x) if x > 2));
+}

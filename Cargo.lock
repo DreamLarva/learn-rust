@@ -17,6 +17,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "adder"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "da860ef43d6a9bb0fcd5b152d96cfbc4e57bd2d5834eb92bbfe6847fb23436c7"
+
+[[package]]
+name = "attribute_macro"
+version = "0.1.0"
+dependencies = [
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "bitflags"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -55,6 +69,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "hello_macro"
+version = "0.1.0"
+dependencies = [
+ "hello_macro_derive",
+]
+
+[[package]]
+name = "hello_macro_derive"
+version = "0.1.0"
+dependencies = [
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "libc"
 version = "0.2.88"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -65,6 +94,31 @@ name = "ppv-lite86"
 version = "0.2.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ac74c624d6b2d21f425f752262f42188365d7b8ff1aff74c82e45136510a4857"
+
+[[package]]
+name = "proc-macro2"
+version = "1.0.29"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b9f5105d4fdaab20335ca9565e106a5d9b82b6219b5ba735731124ac6711d23d"
+dependencies = [
+ "unicode-xid",
+]
+
+[[package]]
+name = "proc_marco"
+version = "0.1.0"
+dependencies = [
+ "syn",
+]
+
+[[package]]
+name = "quote"
+version = "1.0.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c3d0b9745dc2debf507c8422de05d7226cc1f0644216dfdfead988f9b1ab32a7"
+dependencies = [
+ "proc-macro2",
+]
 
 [[package]]
 name = "rand"
@@ -135,11 +189,39 @@ dependencies = [
 ]
 
 [[package]]
+name = "syn"
+version = "1.0.76"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c6f107db402c2c2055242dbf4d2af0e69197202e9faacbef9571bbe47f5a1b84"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "unicode-xid",
+]
+
+[[package]]
 name = "the_rust_programming_language"
 version = "0.1.0"
 dependencies = [
+ "adder 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "hello_macro",
+ "hello_macro_derive",
+ "proc_marco",
+ "quote",
  "rand 0.8.3",
+ "syn",
+ "threadPool",
 ]
+
+[[package]]
+name = "threadPool"
+version = "0.1.0"
+
+[[package]]
+name = "unicode-xid"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8ccb82d61f80a663efe1f787a51b16b5a51e3314d6ac365b08639f52387b33f3"
 
 [[package]]
 name = "wasi"

@@ -6,10 +6,21 @@ edition = "2018"
 
 [dependencies]
 rand = "0.8.3"
-#adder = "0.1.0"
+syn = "1.0"
+quote = "1.0"
+hello_macro = { path = "./derive_macro" }
+hello_macro_derive = { path = "./derive_macro/hello_macro_derive" }
+proc_marco = { path = "./proc_marco" }
+threadPool = { path = "./threadPool" }
+adder = "0.1.0"
+
 
 [workspace]
 members = [
     "adder",
     "add-one",
+    "derive_macro",
+    "attribute_macro",
+    "proc_marco",
+    "threadPool"
 ]

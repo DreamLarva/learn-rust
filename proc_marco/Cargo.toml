@@ -1,0 +1,22 @@
+[package]
+name = "proc_marco"
+version = "0.1.0"
+authors = []
+edition = "2018"
+
+# lib 必须
+# 相当于 在全局放入了 hex! 宏
+[lib]
+proc-macro = true
+name = "hex"
+path = "src/hex.rs"
+
+
+
+# bin 必须
+[[bin]]
+name = "bin"
+path = "src/main.rs"
+
+[dependencies]
+syn = "1.0"

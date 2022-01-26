@@ -1,12 +1,15 @@
 // main.rs 一般使用自己项目的使用 只给自己运行生产用
 #![allow(unused_variables)] // 不对 未使用的变量 warning
+                            // #![feature(trace_macros)]
+                            // #![feature(log_syntax)]
+                            // use std::collections::HashMap;
+                            // use std::fs::{self, File, OpenOptions};
+                            // use std::io::Read;
+                            // use std::io::{ErrorKind, Write};
+                            // use std::ops::{Add, Index};
+                            // use std::{env, io, process};
 
-use std::collections::HashMap;
-use std::fs::{self, File};
-use std::io::ErrorKind;
-use std::io::Read;
-use std::ops::{Add, Index};
-use std::{env, io, process};
+extern crate core;
 
 mod ch01;
 mod ch02;
@@ -33,9 +36,30 @@ mod ch15_04;
 mod ch16;
 mod ch17;
 mod ch18;
+mod ch19;
+mod ch19_06;
+mod ch20;
+// mod macro_book1;
+// mod macro_book2;
+// mod macro_book3;
+// mod macro_book4;
+// mod macro_book5_scope1;
+// mod macro_book5_scope2;
+// mod macro_book5_scope3;
+// mod macro_book5_scope4;
+// mod macro_book5_scope5;
+// mod macro_book5_scope6;
+// mod macro_book5_scope7;
+// mod macro_book5_scope8;
+// mod macro_book6_import_export1;
+// mod macro_book6_import_export2;
+// mod macro_book7_example;
+
+use hex::hex;
 
 // 引用当前的 crate 也就是 lib 中的内容, 使用的文件名就是 当前项目的名字
 use std::cell::{Ref, RefCell};
+use std::io::Write;
 use std::rc::Rc;
 use the_rust_programming_language::Config;
 
@@ -108,5 +132,22 @@ pub fn main() {
     // ch17::ch17_02_trait_objects();
     // ch17::ch17_03_oo_design_patterns();
 
-    ch18::ch18_03_pattern_syntax();
+    // ch18::ch18_03_pattern_syntax();
+
+    // ch19::ch19_01_unsafe_rust()
+    // ch19::ch19_03_advanced_traits()
+    // ch19::ch19_04_advanced_types();
+    // ch19::ch19_05_advanced_functions_and_closures();
+
+    // hex!(1 + 2, 3 + 4, 5 + 6);
+    // macro_book1::main();
+    // macro_book2::main();
+    // macro_book3::main();
+
+    // X!();
+    // Y!();
+
+    // macro_book7_example::main();
+
+    // ch20::main();
 }
