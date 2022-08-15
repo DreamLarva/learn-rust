@@ -40,7 +40,9 @@ pub fn ch08_02_strings() {
         let mut s1 = String::from("foo");
         let s2 = "bar";
         s1.push_str(s2);
-        println!("s2 is {}", s2);
+        let s3 = "!".to_string();
+        s1.push_str(&s3);
+        println!("s2 is {s2} s3 is {s3}");
 
         // push 方法被定义为获取一个单独的字符作为参数，并附加到 String 中。
         let mut s3 = String::from("lo");
@@ -74,8 +76,8 @@ pub fn ch08_02_strings() {
         let s3 = String::from("toe");
 
         // 并不会 获取所有权
-        let s = format!("{}-{}-{}", s1, s2, s3);
-        println!("{} {}", s, s1); // s1 s2 s3 依然有效
+        let s = format!("{s1}-{s2}-{s3}");
+        println!("{s} {s1}"); // s1 s2 s3 依然有效
 
         // 之所以能够在 add 调用中使用 &s2 是因为 &String 可以被 强转（coerced）成 &str。
         // 当add函数被调用时，Rust 使用了一个被称为 解引用强制多态（deref coercion）的技术，
@@ -87,7 +89,7 @@ pub fn ch08_02_strings() {
     // rust 中是不能使用索引访问字符串的
     // 当使用 UTF-8 访问的时候 不能判断是 多少个字节是一个字符
     {
-        // let s1 = String::from("hello");
+        let s1 = String::from("hello");
         // let h = s1[0]; // error
     }
     // 字符串 slice
@@ -96,9 +98,10 @@ pub fn ch08_02_strings() {
         let hello = "Здравствуйте";
 
         let s = &hello[0..4]; // 每个 Unicode 标量值需要两个字节存储
-                              // let s = &hello[0..1]; // error
-                              // thread 'main' panicked at 'byte index 1 is not a char boundary; it is inside 'З' (bytes 0..2) of `Здравствуйте`'
-                              // rust 自动判断了 一个字符的边界
+
+        // let s = &hello[0..1]; // error
+        // thread 'main' panicked at 'byte index 1 is not a char boundary; it is inside 'З' (bytes 0..2) of `Здравствуйте`'
+        // rust 自动判断了 一个字符的边界
 
         println!("字符串 slice {}", s)
     }
@@ -138,6 +141,7 @@ pub fn ch08_02_strings() {
     {
         trait TraitExample {}
 
+        // 为 &str 实现 TraitExample
         impl<'a> TraitExample for &'a str {}
 
         fn example_func<A: TraitExample>(example_arg: A) {}
@@ -147,13 +151,25 @@ pub fn ch08_02_strings() {
         // example_func(&example_string);
         //              ^^^^^^^^^^^^^^^
         //              |
-        //              the trait `TraitExample` is not implemented for `&String`
+        //              the trait `TraitExample` is not implemented for `&std::string::String`
         //              help: consider adding dereference here: `&*example_string`
 
         // In this case we are dereferencing a String to a str,
         // then referencing the str back to &str
         // 先解引用 再 引用
         example_func(&*example_string);
+        example_func(&example_string[..]);
         example_func(example_string.as_str());
+
+        // 不影响其他的使用
+        fn example_func2(a: &String) {}
+        example_func2(&example_string);
+        fn example_func3(a: &str) {}
+        example_func3(&example_string);
+
+        let s1 = String::from("安达市大");
+        let mut h = s1.chars();
+        println!("{}", &h.next().unwrap());
+        println!("{}", &h.next().unwrap());
     }
 }

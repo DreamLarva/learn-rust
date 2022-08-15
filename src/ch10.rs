@@ -260,6 +260,7 @@ pub fn ch10_02_traits() {
     // 例如，可以为 aggregator crate 的自定义类型 Tweet 实现如标准库中的 Display trait，这是因为 Tweet 类型位于 aggregator crate 本地的作用域中。
     // 类似地，也可以在 aggregator crate 中为 Vec<T> 实现 Summary，这是因为 Summary trait 位于 aggregator crate 本地作用域中。
 
+    // 通俗的说 类型(需要实现trait的目标) 和 trait 两者必须至少一个 在你的 crate 中
     // 但是不能为外部类型实现外部 trait。例如，不能在 aggregator crate 中为 Vec<T> 实现 Display trait。
     // 这是因为 Display 和 Vec<T> 都定义于标准库中，它们并不位于 aggregator crate 本地作用域中。
     // 这个限制是被称为 相干性（coherence） 的程序属性的一部分，
@@ -268,7 +269,8 @@ pub fn ch10_02_traits() {
 
     // 默认实现
     {
-        // 有时为 trait 中的某些或全部方法提供默认的行为，而不是在每个类型的每个实现中都定义自己的行为是很有用的。这样当为某个特定类型实现 trait 时，可以选择保留或重载每个方法的默认行为。
+        // 有时为 trait 中的某些或全部方法提供默认的行为，而不是在每个类型的每个实现中都定义自己的行为是很有用的。
+        // 这样当为某个特定类型实现 trait 时，可以选择保留或重载每个方法的默认行为。
         pub trait Summary {
             // 有默认实现
             fn summarize(&self) -> String {

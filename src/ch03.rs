@@ -77,7 +77,7 @@ pub fn ch03_02_data_types() {
     let string = "123abc";
     println!("{}", string);
 
-    /** 复合类型 */
+    /* 复合类型 */
     // 元组类型
     // 一旦初始化 大小就固定了 不能添加或者删除
     let _tup1: (i32, f64, u8) = (500, 6.4, 1); // 可以设置多种类型
@@ -151,7 +151,7 @@ pub fn ch03_03_how_functions_work() {
     let z = five();
     let d = six(5);
 
-    /// 方法只要在作用域中声明 就能够调用(不用先声明在前)
+    // 方法只要在作用域中声明 就能够调用(不用先声明在前)
     fun_1();
     fn fun_1() {
         println!("Another function.");
@@ -252,6 +252,16 @@ pub fn ch03_05_control_flow() {
         println!("{}!", number);
     }
     println!("LIFTOFF!!!");
+
+    // 跳出嵌套循环
+    'outer: for i in 0..10 {
+        for j in 0..10 {
+            println!("{},{}", i, j);
+            if i == 1 && j == 2 {
+                break 'outer;
+            }
+        }
+    }
 }
 
 fn fun_2() {}

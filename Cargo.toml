@@ -22,5 +22,6 @@ members = [
     "derive_macro",
     "attribute_macro",
     "proc_marco",
-    "threadPool"
+    "threadPool",
+    "av"
 ]

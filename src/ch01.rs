@@ -13,5 +13,5 @@ pub fn main() {
     // 使用shadow 使用新的变量 隐藏原变量 可以无视 变量的类型
     let spaces = " ";
     let spaces = spaces.len();
-    println!("The space of is: {}", spaces)
+    println!("The space of is: {spaces}")
 }

@@ -9,7 +9,7 @@
                             // use std::ops::{Add, Index};
                             // use std::{env, io, process};
 
-extern crate core;
+// extern crate core;
 
 mod ch01;
 mod ch02;
@@ -59,6 +59,8 @@ use hex::hex;
 
 // 引用当前的 crate 也就是 lib 中的内容, 使用的文件名就是 当前项目的名字
 use std::cell::{Ref, RefCell};
+use std::collections::{hash_map, HashMap};
+use std::fs;
 use std::io::Write;
 use std::rc::Rc;
 use the_rust_programming_language::Config;
@@ -83,6 +85,7 @@ pub fn main() {
     // ch06::ch06_01_defining_an_enum();
     // ch06::ch06_02_match();
     // ch06::ch06_03_if_let();
+    // ch06::ch06_03_matches();
 
     // rust 中 文件夹 中的 mod.rs 相当于整个文件夹的索引(类似js 中的index.js)
     // ch07::main()
@@ -150,4 +153,6 @@ pub fn main() {
     // macro_book7_example::main();
 
     // ch20::main();
+
+    // println!("{:?}", m);
 }

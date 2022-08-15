@@ -36,6 +36,8 @@ fn main() {
     vec![1];
 }
 // vec!宏的简化版
+// 会直接影响全局的 vec! , 这个简化版对 [] 内换行的内容 无法正确解析
+/*
 #[macro_export] // #[macro_export] 注解说明宏应该是可用的。 如果没有该注解，这个宏不能被引入作用域。
 macro_rules! vec { // 不带感叹号
     // 单边模式 ( $( $x:expr ),* )
@@ -66,6 +68,7 @@ macro_rules! vec { // 不带感叹号
     // temp_vec.push(3);
     // temp_vec
 }
+*/
 
 // 用于属性生成代码的过程宏
 // 第二种形式的宏称为 过程宏(procedural macros),因为他们更像函数(一种过程类型).过程宏接受Rust代码作为输入,在这些代码上进行操作,

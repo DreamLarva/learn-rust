@@ -84,12 +84,19 @@ pub fn ch06_01_defining_an_enum() {
         struct WriteMessage(String);
         // 元组结构体
         struct ChangeColorMessage(i32, i32, i32);
-        let changeColorMessage = ChangeColorMessage(1, 1, 1);
+        let change_color_message = ChangeColorMessage(1, 1, 1);
 
         // 可以在枚举上定义方法
         impl Message {
             fn call(&self) {
                 // 在这里定义方法体
+                match self {
+                    Message::Quit => 1,
+                    Message::Move { x, y } => 2,
+                    Message::Write(_) => 3,
+                    Message::ChangeColor(_, _, _) => 4,
+                };
+                ()
             }
         }
 
@@ -117,7 +124,9 @@ pub fn ch06_01_defining_an_enum() {
         // 这句话会提示 编译错误 类型不同就不能相加
         // 提前声明 某些值可能为空 那么使用这些值的时候 就必须处理 为空的情况 才能正确编译
         // 所以没有提前准备 Option 申明的 运行时 还是可能会出现 空值错误的
-        // some_number + 1;
+        // some_number + 1; // error
+        let test1 = some_number.unwrap() + 1;
+        println!("test1: {}", test1);
     }
 }
 
@@ -286,9 +295,11 @@ pub fn ch06_03_if_let() {
             count += 1;
         }
     }
+    // 所有详细的 模式匹配见 18章
 }
 
 // 使用 matches！宏匹配
+// 匹配 两个参数是不是相同 返回 bool
 pub fn ch06_03_matches() {
     enum MyEnum {
         Foo,
@@ -296,11 +307,13 @@ pub fn ch06_03_matches() {
     }
     let v = vec![MyEnum::Foo, MyEnum::Bar, MyEnum::Foo];
     // v.iter().filter(|x| x == MyEnum::Foo); // rust 中不能使用 == 来匹配枚举
-    v.iter().filter(|x| matches!(x, MyEnum::Foo));
+    let result = v.iter().filter(|x| matches!(x, MyEnum::Foo));
 
     let foo = 'f';
+    // 字符 'f' 是否 匹配  范围 A-Z 和 范围 a-z 中
     assert!(matches!(foo, 'A'..='Z' | 'a'..='z'));
 
     let bar = Some(4);
+    // bar 是否 匹配条件 Some(x) 且 x > 2
     assert!(matches!(bar, Some(x) if x > 2));
 }

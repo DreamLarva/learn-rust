@@ -1,4 +1,6 @@
 // mod 关键字 定义模块 可嵌套
+// 任何src 下的文件 都需要一个mod 来导出
+// 文件中没有mod.rs到出 在文件夹的外层 是不能 导入的
 mod sound {
     use std::any::Any;
 
@@ -9,6 +11,8 @@ mod sound {
             // 该路径从 所在模块的 父 模块开始而不是当前模块。
             super::breathe_in();
         }
+
+        fn private_fn() {}
     }
 
     fn breathe_in() {
@@ -17,6 +21,8 @@ mod sound {
         // let a = super::plant::Vegetable { name: "12", id: 1 };
         let a = super::plant::generate_struct();
         // a.id; // private
+
+        // instrument::private_fn(); // error 私有
     }
 }
 
@@ -55,7 +61,7 @@ mod menu {
 
 mod performance_group {
     // 建立从其他mod 中的软连接
-    //    use crate::sound::instrument; // 更加推荐绝对路径 如果在 main.rs 中使用
+    // use crate::sound::instrument; // 更加推荐绝对路径 如果在 main.rs 中使用
     use self::super::sound::instrument; // 在独立的模块中
 
     // use super::sound::instrument;
@@ -74,7 +80,7 @@ mod sound1;
 // 将文件分割进不同的文件夹
 mod sound2; // 需要 sound2.rs 在其中包含 sound2 文件夹内容 模块内
 
-mod sound3;
+pub mod sound3;
 
 pub fn main() {
     // 路径来引用模块树种的项

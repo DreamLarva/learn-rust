@@ -63,13 +63,18 @@ pub fn ch08_01_vectors() {
     // 只能有 一个 mut 或者 多个 &
     {
         let mut v = vec![1, 2, 3, 4, 5];
-        // let first = &v[0]; // 获取所有权 读取数据
+
+        // let first_1 = &v[0]; // error 在操作 mut 之前 操作第一个元素
+
         v.push(6); // borrow 改变内容
         v.push(6); // borrow 改变内容
-                   // println!("The first element is: {}", first);
+
+        let first_3 = &v[0]; // 获取所有权 读取数据
+        println!("The first element is: {}", first_3);
     }
     // 为什么第一个元素的引用会关心 vector 结尾的变化？
-    // 不能这么做的原因是由于 vector 的工作方式：在 vector 的结尾增加新元素时，在没有足够空间将所有所有元素依次相邻存放的情况下，可能会要求分配新内存并将老的元素拷贝到新的空间中。
+    // 不能这么做的原因是由于 vector 的工作方式：在 vector 的结尾增加新元素时，在没有足够空间将所有所有元素依次相邻
+    // 存放的情况下，可能会要求分配新内存并将老的元素拷贝到新的空间中。
     // 这时，第一个元素的引用就指向了被释放的内存。
     // 借用规则阻止程序陷入这种状况。
 
@@ -77,13 +82,18 @@ pub fn ch08_01_vectors() {
     {
         let v = vec![100, 32, 57];
 
+        // 一般而言遍历都是借用而不是move
         for i in &v {
-            println!("{}", i);
+            println!("{i}");
         }
     }
     // 同时需要 index
     {
         let v = vec![100, 32, 57];
+
+        for v in v.iter() {
+            println!("{v}");
+        }
 
         for (v, index) in v.iter().enumerate() {
             println!("{},{}", v, index);
@@ -145,17 +155,18 @@ pub fn ch08_01_vectors() {
         vec[0] = 7;
         assert_eq!(vec[0], 7);
 
-        // extend 是 std::iter::Extend
+        // extend 是 std::iter::traits::Extend 有重载
         // 类似js 的 concat
-        vec.extend([1]);
+        vec.extend([0, 1]); // 传入一个数组
         vec.extend(&[2]);
-        vec.extend([3].iter().copied());
-        vec.extend([4].iter());
+        vec.extend([3].iter().copied()); // 传入迭代器
+        vec.extend([4, 5].iter());
+        vec.extend(vec![6]); // 另一个 vec
 
         for x in &vec {
             println!("{}", x);
         }
-        assert_eq!(vec, [7, 1, 2, 3, 4]);
+        assert_eq!(vec, [7, 0, 1, 2, 3, 4, 5, 6]);
     }
     // 使用 vec! 宏生成
     {
@@ -194,7 +205,7 @@ pub fn ch08_01_vectors() {
             // ...
         }
 
-        // 我操 这页太强了吧 这页能推断出来
+        // 我操 这页太强了吧 这也能推断出来
         let v = vec![0, 1];
         read_slice(&v);
 
@@ -326,13 +337,13 @@ pub fn ch08_01_vectors() {
         vec.retain(|_| (keep[i], i += 1).0);
         assert_eq!(vec, [2, 3, 5]);
     }
-    /// ```
-    /// pub fn dedup_by_key<F, K>(&mut self, key: F)
-    /// where
-    ///     F: FnMut(&mut T) -> K,
-    ///     K: PartialEq<K>,
-    /// ```
-    /// 移除vec中 调用F方法后 相同返回值中的多余一个的其他元素
+    // ```
+    // pub fn dedup_by_key<F, K>(&mut self, key: F)
+    // where
+    //     F: FnMut(&mut T) -> K,
+    //     K: PartialEq<K>,
+    // ```
+    // 移除vec中 调用F方法后 出现连续的相同的值就只保留一个
     {
         let mut vec = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
@@ -410,7 +421,6 @@ pub fn ch08_01_vectors() {
         assert_eq!(v, &[]);
     }
 
-    // pub fn len(&self) -> usize
     // 清空 vec , 删除所有元素
     // 对已分配 capacity 的  vec 是没有作用的
     {
@@ -770,6 +780,7 @@ pub fn ch08_01_vectors() {
         // 插入一个值 并保持顺序
         let mut s = vec![0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55];
         let num = 42;
+        //                这里返回的值是 Err()      解 Err() 中的值
         let idx = s.binary_search(&num).unwrap_or_else(|x| x);
         s.insert(idx, num);
         assert_eq!(s, [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 42, 55]);

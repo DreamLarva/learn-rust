@@ -1,6 +1,7 @@
 #![allow(unused_variables)] // 不对 未使用的变量 warning
 
 use std::collections::*;
+use std::env::temp_dir;
 use std::fs::{self, File};
 use std::io;
 use std::io::ErrorKind;
@@ -54,6 +55,14 @@ pub fn ch08_03_hash_maps() {
         let score = scores.get(&team_name); // 返回的是 Option<&T> 类型
     }
 
+    {
+        let mut scores = HashMap::new();
+        scores.insert("2", 50);
+        let team_name = "2";
+        let score = scores.get(&team_name); // 返回的是 Option<&T> 类型
+        println!("&str {score:?}"); // 还是能输出50
+    }
+
     // 遍历 hashmap
     {
         let mut scores = HashMap::new();
@@ -66,8 +75,8 @@ pub fn ch08_03_hash_maps() {
         }
     }
 
-    // 更新哈希 map
-    // 覆盖一个值
+    // 如果 没有这个key 的值,更新后,返回 None
+    // 如果 这个key 有值, 更新为新值, 返回原值
     {
         let mut scores = HashMap::new();
         scores.insert(String::from("Blue"), 10);

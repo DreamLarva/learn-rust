@@ -26,7 +26,7 @@ fn main() {}
 mod back_of_house {
     fn fix_incorrect_order() {
         cook_order();
-        // super 进入父模块
+        // super 进入父模块 back_of_house
         super::serve_order();
     }
 
@@ -58,9 +58,11 @@ mod back_of_house {
     }
 }
 
-// use crate::front_of_house::hosting::add_to_waitlist;
+use crate::front_of_house::hosting::add_to_waitlist;
+mod ch07;
 
 pub fn eat_at_restaurant() {
+    ch07::sound3::instrument::clarinet();
     // 第一种方式，我们在 eat_at_restaurant 中调用 add_to_waitlist 函数，使用的是绝对路径。
     // add_to_waitlist 函数与 eat_at_restaurant 被定义在同一 crate 中，
     // 这意味着我们可以使用 crate 关键字为起始的绝对路径。

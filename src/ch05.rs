@@ -40,7 +40,7 @@ pub fn ch05_01_defining_structs() {
     }
 
     // 使用结构体更新语法 从其他实例创建实例
-    // 不同于js 运算符是 ..  rust 先来的属性不能被覆盖 只取还没有值的属性
+    // 不同于js 运算符是 .. rust 先来的属性不能被覆盖 只取还没有值的属性
     // 由于都必须 实现User 结构 所以最多只可能有一个 展开的变量
     {
         let user2 = User {
@@ -113,8 +113,11 @@ pub fn ch05_01_defining_structs() {
         if let Point(10, y, ..) = origin {
             println!("x is 10 and y is {y}");
         }
-        if let p @ Point(10, y, _) = origin {
-            println!("x is 10 and y is {y} in {p:?}");
+        // 依然保留 完整的变量变量 (作用域里面是不能使用 origin 的)
+        if let p @ Point(1, y, _) = origin {
+            println!("x is 1 and y is {y} in {p:?}");
+
+            // println!("x is 10 and y is {y} in {origin:?}");
         }
     }
 
@@ -149,6 +152,14 @@ pub fn ch05_01_defining_structs() {
             active: true,
             sign_in_count: 1,
         };
+
+        let user2 = user1.email;
+
+        println!("user1.email:{}", user1.email);
+
+        let user3 = user1;
+
+        println!("user2:{}", user2);
     }
 }
 
@@ -331,7 +342,7 @@ pub fn ch05_03_method_syntax() {
         }
 
         impl Rectangle {
-            // 参数中 没有 &self
+            // 参数中 没有 &self 相当于一个静态方法
             fn square(size: u32) -> Rectangle {
                 Rectangle {
                     width: size,
