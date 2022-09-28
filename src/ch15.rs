@@ -31,7 +31,7 @@ Box<T>，单一拥有者，可变或不可变借用，编译时检查(Deref, Der
 RefCell<T>, 单一拥有者，可变或不可变借用，运行时检查。可变不可变是对外的，都可以在内部改变。其实是把不安全的操作包装在安全的接口中，适用于：我比编译器明白，我知道我在干什么。
 */
 
-fn ch15_01_box() {
+pub fn ch15_01_box() {
     // box 允许你将一个值放在堆上而不是栈上。留在栈上的则是指向堆数据的指针。
     // 除了数据被储存在堆上而不是栈上之外，box 没有性能损失。不过也没有很多额外的功能。它们多用于如下场景：
     //
@@ -84,6 +84,10 @@ fn ch15_01_box() {
     // box 只提供了间接存储和堆分配；他们并没有任何其他特殊的功能，
     // Box<T> 类型是一个智能指针，因为它实现了 Deref trait，它允许 Box<T> 值被当作引用对待。
     // 当 Box<T> 值离开作用域时，由于 Box<T> 类型 Drop trait 的实现，box 所指向的堆数据也会被清除。
+
+    if let List::Cons(v, _) = list {
+        println!("List::Cons:{v}");
+    }
 }
 
 pub fn ch15_02_deref() {
@@ -107,10 +111,16 @@ pub fn ch15_02_deref() {
         assert_eq!(5, x);
         assert_eq!(5, *y); // 解引用运算符以 y 为引用时相同的方式追踪 box 的指针
     }
+    {
+        let x = 5;
+        let mut y = Box::new(x);
+        *y = 1;
+    }
 
     // 自定义智能指针
 
     // 实现一个 Box
+    #[derive(Debug)]
     struct MyBox<T>(T);
     impl<T> MyBox<T> {
         fn new(x: T) -> MyBox<T> {
@@ -122,7 +132,8 @@ pub fn ch15_02_deref() {
     use std::ops::Deref;
     impl<T> Deref for MyBox<T> {
         type Target = T;
-        // 语法定义了用于此 trait 的关联类型。关联类型是一个稍有不同的定义泛型参数的方式，现在还无需过多的担心它；第十九章会详细介绍。
+        // 语法定义了用于此 trait 的关联类型。关联类型是一个稍有不同的定义泛型参数的方式，现在还无需过多的担心它；
+        // 第十九章会详细介绍。
         // deref 方法向编译器提供了获取任何实现了 Deref trait 的类型的值，
         // 并且调用这个类型的 deref 方法来获取一个它知道如何解引用的 & 引用的能力。
         fn deref(&self) -> &Self::Target {
@@ -133,6 +144,9 @@ pub fn ch15_02_deref() {
     {
         let x = 5;
         let y = MyBox::new(x);
+        let mut z = MyBox::new(x);
+        // *z = 1; //  trait `DerefMut` is required to modify through a dereference
+        println!("z:{z:?}");
 
         assert_eq!(5, x);
         assert_eq!(5, *y);
@@ -163,8 +177,13 @@ pub fn ch15_02_deref() {
         // 标准库中提供了 String 上的 Deref 实现，其会返回字符串 slice，这可以在 Deref 的 API 文档中看到。
         // Rust 再次调用 deref 将 &String 变为 &str，这就符合 hello 函数的定义了。
         hello(&m);
-        // 等同于 hello(&(*m)[..]);
+        // 如果MyBox 没有实现 Deref ,则需要 hello(&(*m)[..]);
         // (*m) 将 MyBox<String> 解引用为 String。接着 & 和 [..] 获取了整个 String 的字符串 slice 来匹配 hello 的签名。
+
+        // 当所涉及到的类型定义了 Deref trait，Rust 会分析这些类型并使用任意多次 Deref::deref 调用以获得匹配参数的类型。
+        // 这些解析都发生在编译时，所以利用 Deref 强制转换并没有运行时损耗！
+        hello(&&&&&m);
+        hello(&&&&&String::from("牛逼"));
     }
 
     // Deref 强制转换如何与可变性交互
@@ -177,11 +196,40 @@ pub fn ch15_02_deref() {
     // 第三个情况有些微妙: Rust也会将可变引用转为不可变引用.反之是不可能的: 不可变引用永远不能转为可变引用.
     // 因为借用规则,如果一个可变引用,其必须是这些数据的唯一引用(否则程序无法编译).
     // 将一个可变引用,而借用规则无法保证这一点.因此,Rust无法假设将不可变引用转换为可变引用是可能的.
+    {
+        #[derive(Debug)]
+        struct MyBox<T>(T);
+        impl<T> MyBox<T> {
+            fn new(x: T) -> MyBox<T> {
+                MyBox(x)
+            }
+        }
+
+        use std::ops::Deref;
+        use std::ops::DerefMut;
+        impl<T> Deref for MyBox<T> {
+            type Target = T;
+
+            fn deref(&self) -> &Self::Target {
+                &self.0
+            }
+        }
+        impl<T> DerefMut for MyBox<T> {
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.0
+            }
+        }
+
+        let a = 1;
+        let mut b = MyBox::new(a);
+        *b = 3;
+        println!("b:{b:?}");
+    }
 }
 
 pub fn ch15_03_drop() {
     // 对于智能指针模式来说第二个重要的 trait 是 Drop,其云溪我们在值要离开作用域时执行一些代码.
-    // 可以为任何类型提供Drop trait 的实现,同时所指定的代码用于释放类似于文件或网络连接的紫苑.
+    // 可以为任何类型提供Drop trait 的实现,同时所指定的代码用于释放类似于文件或网络连接的资源.
     // 我们在 智能指针上下文讨论 Drop 是因为其功能几乎总是用于实现智能指针.
     // 例如Box<T> 用来释放box所指向的堆空间
 
@@ -242,6 +290,7 @@ pub fn ch15_03_drop() {
 }
 
 use std::cell::RefCell;
+use std::ops::DerefMut;
 use std::rc::Rc;
 
 enum List {
@@ -384,8 +433,46 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::cell::RefCell;
+
+    pub trait Messenger {
+        fn send(&self, msg: &str);
+    }
+
+    pub struct LimitTracker<'a, T: Messenger> {
+        messenger: &'a T,
+        value: usize,
+        max: usize,
+    }
+
+    impl<'a, T> LimitTracker<'a, T>
+    where
+        T: Messenger,
+    {
+        pub fn new(messenger: &T, max: usize) -> LimitTracker<T> {
+            LimitTracker {
+                messenger,
+                value: 0,
+                max,
+            }
+        }
+
+        pub fn set_value(&mut self, value: usize) {
+            self.value = value;
+
+            let percentage_of_max = self.value as f64 / self.max as f64;
+
+            if percentage_of_max >= 1.0 {
+                self.messenger.send("Error: You are over your quota!");
+            } else if percentage_of_max >= 0.9 {
+                self.messenger
+                    .send("Urgent warning: You've used up over 90% of your quota!");
+            } else if percentage_of_max >= 0.75 {
+                self.messenger
+                    .send("Warning: You've used up over 75% of your quota!");
+            }
+        }
+    }
 
     struct MockMessenger {
         sent_message: RefCell<Vec<String>>,
@@ -404,6 +491,14 @@ mod tests {
             // 改变 sent_message 的值
             self.sent_message.borrow_mut().push(String::from(message));
         }
+
+        // fn send(&self, message: &str) {
+        //     let mut one_borrow = self.sent_message.borrow_mut();
+        //     let mut two_borrow = self.sent_message.borrow_mut(); // error 不能有多个可变引用
+        //
+        //     one_borrow.push(String::from(message));
+        //     two_borrow.push(String::from(message));
+        // }
     }
 
     #[test]

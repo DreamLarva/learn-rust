@@ -176,7 +176,7 @@ pub fn ch18_03_pattern_syntax() {
         }
         // On the y axis at 7
     }
-    // @钱绑定后解构（Rust1.56新增）
+    // @绑定后解构（Rust1.56新增）
     {
         #[derive(Debug)]
         struct Point {

@@ -16,6 +16,7 @@ use self::List::{Cons, Nil};
 pub fn main() {
     let value = Rc::new(RefCell::new(5));
     let a = Rc::new(Cons(Rc::clone(&value), Rc::new(Nil)));
+    // 有两个 引用
     let b = Cons(Rc::new(RefCell::new(6)), Rc::clone(&a));
     let c = Cons(Rc::new(RefCell::new(10)), Rc::clone(&a));
 

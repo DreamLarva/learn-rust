@@ -1,4 +1,6 @@
 use std::collections::HashMap;
+use std::fmt::Display;
+use std::hash::Hash;
 use std::thread;
 use std::time::Duration;
 
@@ -32,13 +34,16 @@ pub fn ch13_01_closures() {
             // let expensive_closure = |num| simulated_expensive_calculation(num);
 
             if intensity < 25 {
-                println!("Today, do {} pushups!", expensive_closure(intensity));
-                println!("Next, do {} situps!", expensive_closure(intensity));
+                println!("Today, do {} pushups!", expensive_closure(intensity) as u32);
+                println!("Next, do {} situps!", expensive_closure(intensity) as u32);
             } else {
                 if random_number == 3 {
                     println!("Take a break today! Remember to stay hydrated!");
                 } else {
-                    println!("Today, run for {} minutes!", expensive_closure(intensity));
+                    println!(
+                        "Today, run for {} minutes!",
+                        expensive_closure(intensity) as u32
+                    );
                 }
             }
         }
@@ -78,7 +83,7 @@ pub fn ch13_01_closures() {
 
         struct Cacher<T>
         where
-            T: Fn(u32) -> u32, // 声明了 T 发型
+            T: Fn(u32) -> u32, // 声明了 T 泛型
         {
             calculation: T,
             value: Option<u32>,
@@ -86,7 +91,7 @@ pub fn ch13_01_closures() {
 
         impl<T> Cacher<T>
         where
-            T: Fn(u32) -> u32,
+            T: Fn(u32) -> u32, // 还得再写一遍
         {
             fn new(calculation: T) -> Cacher<T> {
                 Cacher {
@@ -99,7 +104,7 @@ pub fn ch13_01_closures() {
                     // 检测value 值 因为默认是 None 一定会进入None 分支
                     Some(v) => v,
                     None => {
-                        // 注意 这里使用 () 包裹了self.calculation  才能调用
+                        // 注意 这里使用 () 包裹了self.calculation  才能调用, 应该是闭包函数需要()
                         let v = (self.calculation)(arg); // 执行方法
                         self.value = Some(v); // 存入结构体
                         v // 返回本次的结果
@@ -170,36 +175,124 @@ pub fn ch13_01_closures() {
         println!("{}", cacher.value(1));
         println!("{}", cacher.value(1));
         println!("{}", cacher.value(2));
-        println!("{}", cacher.value(2));
-
+        let a = 2;
+        println!("{}", cacher.value(a));
+    }
+    {
         // 当前 Cacher 实现的第二个问题是它的应用被限制为只接受获取一个 u32 值并返回一个 u32 值的闭包。
         // 比如说，我们可能需要能够缓存一个获取字符串 slice 并返回 usize 值的闭包的结果。请尝试引入更多
         // 泛型参数来增加 Cacher 功能的灵活性。
-        // todo
+        struct Cacher1<T, U>
+        where
+            U: Eq + Hash,
+            T: Fn(U) -> u32,
+        {
+            calculation: T,
+            value: HashMap<U, u32>,
+        }
 
+        impl<T, U> Cacher1<T, U>
+        where
+            U: Eq + Hash + Clone,
+            T: Fn(U) -> u32, // 获取所有权
+        {
+            fn new(calculation: T) -> Cacher1<T, U> {
+                Cacher1 {
+                    calculation,
+                    value: HashMap::new(),
+                }
+            }
+            fn value(&mut self, arg: U) -> u32 {
+                match self.value.get(&arg) {
+                    Some(v) => *v, // v type为 &u32 需要 用 * 解引用
+                    None => {
+                        let value = (self.calculation)(arg.clone());
+                        self.value.insert(arg, value);
+                        value
+                    }
+                }
+            }
+        }
+        let mut cacher1 = Cacher1::new(|a| (a + 1) as u32);
+        println!("Cacher1 {}", cacher1.value(1));
+        let mut cacher1 = Cacher1::new(|a: String| a.len() as u32);
+        println!("Cacher1 {}", cacher1.value(String::from("123")));
+    }
+    {
+        // 当前 Cacher 实现的第二个问题是它的应用被限制为只接受获取一个 u32 值并返回一个 u32 值的闭包。
+        // 比如说，我们可能需要能够缓存一个获取字符串 slice 并返回 usize 值的闭包的结果。请尝试引入更多
+        // 泛型参数来增加 Cacher 功能的灵活性。
+        struct Cacher2<T, U>
+        where
+            U: Eq + Hash,
+            T: Fn(&U) -> u32, // 引用不获取所有权
+        {
+            calculation: T,
+            value: HashMap<U, u32>,
+        }
+
+        impl<T, U> Cacher2<T, U>
+        where
+            U: Eq + Hash + Clone,
+            T: Fn(&U) -> u32,
+        {
+            fn new(calculation: T) -> Cacher2<T, U> {
+                Cacher2 {
+                    calculation,
+                    value: HashMap::new(),
+                }
+            }
+            fn value(&mut self, arg: U) -> u32 {
+                match self.value.get(&arg) {
+                    Some(v) => *v, // v type为 &u32 需要 用 * 解引用
+                    None => {
+                        let value = (self.calculation)(&arg);
+                        self.value.insert(arg, value);
+                        value
+                    }
+                }
+            }
+        }
+        let mut cacher1 = Cacher2::new(|a| (a + 1) as u32);
+        println!("Cacher1 {}", cacher1.value(1));
+        let mut cacher1 = Cacher2::new(|a: &String| a.len() as u32);
+        println!("Cacher1 {}", cacher1.value(String::from("123")));
+    }
+    {
         // 闭包会捕获其环境
         // 闭包可以通过三种方式捕获其环境，他们直接对应函数的三种获取参数的方式：获取所有权，可变借用和不可变借用。
         // 这三种捕获值的方式被编码为如下三个 Fn trait：
-        //  FnOnce 消费从周围作用域捕获的变量，闭包周围的作用域被称为其 环境，environment。为了消费捕获到的变量，闭包必须获取其所有权并在定义闭包时将其移动进闭包。其名称的 Once 部分代表了闭包不能多次获取相同变量的所有权的事实，所以它只能被调用一次。
+        // FnOnce 消费从周围作用域捕获的变量，闭包周围的作用域被称为其 环境，environment。为了消费捕获到的变量，
+        // 闭包必须获取其所有权并在定义闭包时将其移动进闭包。
+        // 其名称的 Once 部分代表了闭包不能多次获取相同变量的所有权的事实，所以它只能被调用一次。
+
         //  FnMut 获取可变的借用值所以可以改变其环境
         //  Fn 从其环境获取不可变的借用值
         {
-            fn main() {
-                let x = 4;
+            let x = 4;
 
-                let equal_to_x = |z| z == x;
+            let equal_to_x1 = |z| z == x; // 这里 x 是拷贝
 
-                let y = 4;
+            let y = 4;
 
-                assert!(equal_to_x(y));
-            }
+            assert!(equal_to_x1(y));
         }
         // 当创建一个闭包时，Rust 根据其如何使用环境中变量来推断我们希望如何引用环境。
         // 由于所有闭包都可以被调用至少一次，所以所有闭包都实现了 FnOnce 。
         // 那些并没有移动被捕获变量的所有权到闭包内的闭包也实现了 FnMut ，
         // 而不需要对被捕获的变量进行可变访问的闭包则也实现了 Fn 。
-        // equal_to_x 闭包不可变的借用了 x（所以 equal_to_x 具有 Fn trait），
+        // equal_to_x1 闭包不可变的借用了 x（所以 equal_to_x1 具有 Fn trait），
         // 因为闭包体只需要读取 x 的值。
+        {
+            let mut vec = vec![1, 2, 3, 4];
+            let mut times = 0;
+            vec.retain(|&x| {
+                times += 1;
+                x % 2 == 0
+            });
+            println!("times {times}");
+            assert_eq!(vec, [2, 4]);
+        }
 
         // 如果你希望强制闭包获取其使用的环境值的所有权，可以在参数列表前使用 move 关键字。
         // 这个技巧在将闭包传递给新线程以便将数据移动到新线程中时最为实用。
@@ -259,7 +352,8 @@ pub fn ch13_02_iterators() {
 
         let v1_iter = v1.iter();
 
-        let total: i32 = v1_iter.sum();
+        // 必须声明类型 否则sum 不知道结果是什么类型
+        let total = v1_iter.sum::<i32>();
         // 调用 sum 之后不再允许使用 v1_iter 因为调用 sum 时它会获取迭代器的所有权。
 
         assert_eq!(total, 6);
@@ -268,12 +362,13 @@ pub fn ch13_02_iterators() {
     // 产生其他迭代器的方法
     {
         // Iterator trait 中定义了另一类方法，被称为 迭代器适配器（iterator adaptors），他们允许我们将当
-        // 前迭代器变为不同类型的迭代器。可以链式调用多个迭代器适配器。不过因为所有的迭代器都是惰性的，必
-        // 须调用一个消费适配器方法以便获取迭代器适配器调用的结果。
-        let v1: Vec<i32> = vec![1, 2, 3];
+        // 前迭代器变为不同类型的迭代器。可以链式调用多个迭代器适配器。不过因为所有的迭代器都是惰性的，
+        // 必须调用一个消费适配器方法以便获取迭代器适配器调用的结果。
+        let v1 = vec![1, 2, 3];
 
         // collect 方法。这个方法消费迭代器并将结果收集到一个数据结构中。
         let v2: Vec<_> = v1.iter().map(|x| x + 1).collect();
+        let v2 = v1.iter().map(|x| x + 1).collect::<Vec<_>>();
 
         assert_eq!(v2, vec![2, 3, 4]);
     }

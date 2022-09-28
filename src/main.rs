@@ -60,9 +60,12 @@ use hex::hex;
 // 引用当前的 crate 也就是 lib 中的内容, 使用的文件名就是 当前项目的名字
 use std::cell::{Ref, RefCell};
 use std::collections::{hash_map, HashMap};
-use std::fs;
+use std::fmt::{Debug, Display};
 use std::io::Write;
 use std::rc::Rc;
+use std::slice::from_raw_parts;
+use std::str::from_utf8_unchecked;
+use std::{env, fs, process};
 use the_rust_programming_language::Config;
 
 pub fn main() {
@@ -100,6 +103,8 @@ pub fn main() {
 
     // ch10::ch10_01_syntax();
     // ch10::ch10_02_traits();
+    // println!("imply Summary for Vec, {}", vec![1].summarize()); // 没有实现 Summary
+
     // ch10::ch10_03_lifetime_syntax();
 
     // ch13::ch13_01_closures();
@@ -113,18 +118,19 @@ pub fn main() {
     // });
     // println!("Searching for {}", config.query);
     // println!("In file {}", config.filename);
-    //
+
     // if let Err(e) = the_rust_programming_language::run(config) {
     //     // eprintln! 宏来打印到标准错误流
     //     eprintln!("Application error : {}", e);
     //     process::exit(1);
     // }
 
+    // ch15::ch15_01_box();
     // ch15::ch15_02_deref();
     // ch15::ch15_03_drop();
     // ch15::ch15_04_rc();
     // ch15_02::main();
-    // ch15_03::main()
+    ch15_03::main()
     // ch15_04::main();
 
     // ch16::ch16_01_threads();

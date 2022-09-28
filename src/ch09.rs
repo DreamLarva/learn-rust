@@ -164,6 +164,24 @@ pub fn ch09_02_recoverable_errors_with_result() {
             // 编译器会直接检查出 外侧的函数的 返回类型 不是 Result 而报错
         }
     }
+    // 在 Option<T> 值上使用 ? 运算符
+    {
+        // 错误信息也提到 ? 也可用于 Option<T> 值。如同对 Result 使用 ? 一样，只能在返回 Option 的函数中对 Option 使用 ?。
+        // 在 Option<T> 上调用 ? 运算符的行为与 Result<T, E> 类似：如果值是 None，此时 None 会从函数中提前返回。
+        // 如果值是 Some，Some 中的值作为表达式的返回值同时函数继续。
+        fn last_char_of_first_line(text: &str) -> Option<char> {
+            text.lines().next()?.chars().last()
+        }
+
+        assert_eq!(
+            last_char_of_first_line("Hello, world\nHow are you today?"),
+            Some('d')
+        );
+
+        assert_eq!(last_char_of_first_line(""), None);
+        assert_eq!(last_char_of_first_line("\nhi"), None);
+    }
+
     {
         // Box<dyn Error> 理解为 任何的错误
         fn main() -> Result<(), Box<dyn Error>> {
@@ -195,7 +213,9 @@ pub fn ch09_03_to_panic_or_not_to_panic() {
     {
         use std::net::IpAddr;
         // 硬编码的字符
-        let home: IpAddr = "127.0.0.1".parse().unwrap(); // 我们知道绝对不会报错 但是编译器不知道仍然返回是Result 所以用 unwrap 而不是 ?
+        let home1: IpAddr = "127.0.0.1".parse().unwrap(); // 我们知道绝对不会报错 但是编译器不知道仍然返回是Result 所以用 unwrap 而不是 ?
+        let home2 = "127.0.0.1".parse::<IpAddr>().unwrap(); // 我们知道绝对不会报错 但是编译器不知道仍然返回是Result 所以用 unwrap 而不是 ?
+        println!("{} ; {}", home1, home2);
     }
 
     // # 错误处理知道原则

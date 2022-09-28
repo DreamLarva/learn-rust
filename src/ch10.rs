@@ -79,7 +79,8 @@ pub fn ch10_01_syntax() {
             }
         }
 
-        let p = Point { x: 5, y: 10 };
+        let mut p = Point { x: 5, y: 10 };
+
         let q = Point { x: 5.0, y: 10.0 };
 
         println!("p.x = {}", p.x());
@@ -295,6 +296,10 @@ pub fn ch10_02_traits() {
         };
 
         println!("New article available! {}", article.summarize());
+
+        impl<T> Summary for Vec<T> {}
+        // 只在这里有效 在main.rs 中依然没有 实现Summary
+        println!("imply Summary for Vec, {}", vec![1].summarize());
     }
     // 重载一个默认的实现
     // 注意无法从相同方法的重载实现中 调用默认方法。(这不是当然吗?)
@@ -316,7 +321,7 @@ pub fn ch10_02_traits() {
 
         impl Summary for Tweet {
             fn summarize_author(&self) -> String {
-                self.summarize();
+                // self.summarize();
                 format!("@{}", self.username)
             }
             // 默认实现了 summarize
@@ -384,6 +389,9 @@ pub fn ch10_02_traits() {
         }
         impl Summary for NewsArticle {} // 空的实现
 
+        pub struct Another {}
+        impl Summary for Another {} // 空的实现
+
         // endregion
         // 完整的写法 确定了trait就是 Summary
         pub fn notify<T: Summary>(item: T) {
@@ -391,8 +399,25 @@ pub fn ch10_02_traits() {
         }
 
         // 当多个参数为同样的trait 的时候 使用Trait Bounds 更加简略
+        let a = NewsArticle {
+            headline: String::from(""),
+            location: String::from(""),
+            author: String::from(""),
+            content: String::from(""),
+        };
+        let b = Another {};
         pub fn notify1(item1: impl Summary, item2: impl Summary) {}
+        notify1(a, b);
+
+        let a = NewsArticle {
+            headline: String::from(""),
+            location: String::from(""),
+            author: String::from(""),
+            content: String::from(""),
+        };
+        let b = Another {};
         pub fn notify2<T: Summary>(item1: T, item2: T) {}
+        // notify2(a, b); // error a , b 必须是相同的类型
 
         // 如果想要 NewArticle 中的属性也想要 Summary trait
         // 那当然设置类型为 NewsArticle 就行了 因为 NewsArticle 已经实现了 Summary trait
@@ -413,6 +438,7 @@ pub fn ch10_02_traits() {
             fn a(&self) -> String {
                 String::from("(1Read more...)")
             }
+            fn b(&self) {}
         }
         pub trait Display {
             fn a(&self) -> String {
@@ -434,13 +460,14 @@ pub fn ch10_02_traits() {
 
         pub fn notify1(item: impl Summary + Display) {
             // item.a(); // error 找到多个 a 实现
+            item.b();
         }
         pub fn notify2<T: Summary + Display>(item: T) {}
 
-        notify1(article)
+        notify1(article);
     }
 
-    // 通过where 简化代码
+    // 通过where 简化代码  trait bound
     {
         pub trait Display {}
         pub trait Debug {}
@@ -448,7 +475,7 @@ pub fn ch10_02_traits() {
             1
         }
 
-        fn some_function2<T, U>(t: T, u: U) -> i32
+        fn some_function2<T, U>(t: &T, u: U) -> i32
         where
             T: Display + Clone,
             U: Clone + Debug,
@@ -521,7 +548,7 @@ pub fn ch10_02_traits() {
         }
 
         // error `if` and `else` have incompatible types
-        // 不能返回 有相同的 实现了 所需返回类型相同的 trait , 但是 struct 非单一的情况
+        // 不能返回 有相同的 实现了 所需返回类型相同的 trait , 但是 struct不同 的情况
         // fn switch_return2(switch: bool) -> impl Summary {
         //     if switch {
         //         Test1 { a: 1 }
@@ -554,17 +581,38 @@ pub fn ch10_02_traits() {
         }
 
         let number_list = vec![34, 50, 25, 100, 65];
-
         let result = largest1(&number_list);
         println!("The largest number is {}", result);
-
         let char_list = vec!['y', 'm', 'a', 'q'];
-
         let result = largest1(&char_list);
         println!("The largest char is {}", result);
 
         // 另一种 largest 的实现方式是返回在 slice 中 T 值的引用。
-        // 如果我们将函数返回值从 T 改为 &T 并改变函数体使其能够返回一个引用，我们将不需要任何 Clone 或 Copy 的 trait bounds 而且也不会有任何的堆分配。
+        // 如果我们将函数返回值从 T 改为 &T 并改变函数体使其能够返回一个引用，
+        // 我们将不需要任何 Clone 或 Copy 的 trait bounds 而且也不会有任何的堆分配。
+        fn largest3<T: PartialOrd>(list: &[T]) -> &T {
+            // 所以需要 PartialOrd 和 Copy 两个泛型
+            let mut largest = &list[0];
+            for item in list.iter() {
+                if item > largest {
+                    largest = item;
+                }
+            }
+            largest
+        }
+        let number_list = vec![String::from("123")];
+        let result = largest3(&number_list);
+        // number_list.push(String::from("321")); // error
+        println!("The largest number is {}", result);
+        println!("{number_list:?}");
+
+        let char_list = vec!['y', 'm', 'a', 'q'];
+        let result = largest1(&char_list);
+        println!("The largest char is {}", result);
+
+        // 另一种 largest 的实现方式是返回在 slice 中 T 值的引用。
+        // 如果我们将函数返回值从 T 改为 &T 并改变函数体使其能够返回一个引用，
+        // 我们将不需要任何 Clone 或 Copy 的 trait bounds 而且也不会有任何的堆分配。
         fn largest2<T: PartialOrd>(list: &[T]) -> &T {
             // 所以需要 PartialOrd 和 Copy 两个泛型
             let mut largest_index: usize = 0;
@@ -581,7 +629,6 @@ pub fn ch10_02_traits() {
 
         let result = largest1(&number_list);
         println!("The largest number is {}", result);
-
         let char_list = vec!['y', 'm', 'a', 'q'];
 
         let result = largest1(&char_list);
@@ -617,6 +664,11 @@ pub fn ch10_02_traits() {
         // 对任何满足特定 trait bound 的类型实现 trait 被称为 blanket implementations，他们被广泛的用于 Rust 标准库中。
         // 例如，标准库为任何实现了 Display trait 的类型实现了 ToString trait。这个 impl 块看起来像这样：
         // impl<T: Display> ToString for T {
+        //     // --snip--
+        // }
+        //
+        // 完整的是这样的
+        // impl<T: fmt::Display + ?Sized> ToString for T {
         //     // --snip--
         // }
 
@@ -664,7 +716,7 @@ pub fn ch10_03_lifetime_syntax() {
             }
         }
         // 泛型生命周期 'a 的具体生命周期等同于 x 和 y 的生命周期中较小的那一个。
-        // 因为我们用相同的生命周期参数 'a 标注了返回的引用值，所以返回的引用值就能保证在 x 和 y 中较短的那个生命周期结束之前保持有效。
+        // 因为我们用相同的生命周期参数 'a 标注了返回的引用值，所以返回的引用值就能保证在 x 和 y 中 *较短* 的那个生命周期结束之前保持有效。
         let string1 = String::from("abcd");
         let string2 = "xyz";
 
@@ -698,6 +750,9 @@ pub fn ch10_03_lifetime_syntax() {
     {
         // 返回类型是引用 但是只和 x 有关系只指定 x 和 返回的 生命周期
         fn longest1<'a>(x: &'a str, y: &str) -> &'a str {
+            x
+        }
+        fn longest3<'a>(x: &'a str, y: &'a str) -> &'a str {
             x
         }
 
@@ -818,6 +873,9 @@ pub fn ch10_03_lifetime_syntax() {
         // impl 之后和类型名称之后的生命周期参数是必要的，
         // 不过因为第一条生命周期规则我们并不必须标注 self 引用的生命周期。
         impl<'a> ImportantExcerpt<'a> {
+            fn level(&self) -> i32 {
+                3
+            }
             fn announce_and_return_part(&self, announcement: &str) -> &str {
                 println!("Attention please: {}", announcement);
                 self.part
