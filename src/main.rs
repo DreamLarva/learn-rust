@@ -1,13 +1,13 @@
 // main.rs 一般使用自己项目的使用 只给自己运行生产用
 #![allow(unused_variables)] // 不对 未使用的变量 warning
-                            // #![feature(trace_macros)]
-                            // #![feature(log_syntax)]
-                            // use std::collections::HashMap;
-                            // use std::fs::{self, File, OpenOptions};
-                            // use std::io::Read;
-                            // use std::io::{ErrorKind, Write};
-                            // use std::ops::{Add, Index};
-                            // use std::{env, io, process};
+// #![feature(trace_macros)]
+// #![feature(log_syntax)]
+// use std::collections::HashMap;
+// use std::fs::{self, File, OpenOptions};
+// use std::io::Read;
+// use std::io::{ErrorKind, Write};
+// use std::ops::{Add, Index};
+// use std::{env, io, process};
 
 // extern crate core;
 
@@ -130,7 +130,7 @@ pub fn main() {
     // ch15::ch15_03_drop();
     // ch15::ch15_04_rc();
     // ch15_02::main();
-    ch15_03::main()
+    // ch15_03::main()
     // ch15_04::main();
 
     // ch16::ch16_01_threads();
@@ -161,4 +161,12 @@ pub fn main() {
     // ch20::main();
 
     // println!("{:?}", m);
+
+    let mut a = Box::new(1);
+    println!("{a}");
+
+    *a = 2;
+
+    println!("{a}");
+
 }

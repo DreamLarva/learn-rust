@@ -672,6 +672,8 @@ pub fn ch10_02_traits() {
         //     // --snip--
         // }
 
+        // 这么写的意思 就是要 覆盖掉 Display trait 中 已经实现的 ToString trait
+
         // 因为标准库有了这些 blanket implementation，我们可以对任何实现了 Display trait 的类型调用由 ToString 定义的 to_string 方法。
         let s = 3.to_string();
     }
