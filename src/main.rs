@@ -39,6 +39,7 @@ mod ch18;
 mod ch19;
 mod ch19_06;
 mod ch20;
+mod ch15_05;
 // mod macro_book1;
 // mod macro_book2;
 // mod macro_book3;
@@ -162,11 +163,12 @@ pub fn main() {
 
     // println!("{:?}", m);
 
-    let mut a = Box::new(1);
-    println!("{a}");
+    let a = Rc::new(RefCell::new(Some(1)));
+    if let Some( n) = a.borrow_mut().as_mut() {
+        *n += 1
+    }
 
-    *a = 2;
 
-    println!("{a}");
+    println!("{a:?}")
 
 }

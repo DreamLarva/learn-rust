@@ -59,3 +59,76 @@ pub fn main() {
     // b rc count after changing b = 2
     // a rc count after changing a = 2
 }
+
+
+pub struct Worker {
+    id: usize,
+    log: Rc<RefCell<Vec<String>>>,
+}
+
+impl Worker {
+    pub fn new(id: usize, log: Rc<RefCell<Vec<String>>>) -> Self {
+        Worker { id, log }
+    }
+
+    pub fn run(&self) {
+        let mut log = self.log.borrow_mut();
+        log.push(format!("Worker {} did some work", self.id))
+    }
+}
+
+
+pub struct Engine {
+    log: Rc<RefCell<Vec<String>>>,
+    workers: Vec<Worker>,
+}
+
+impl Engine {
+    pub fn new() -> Self {
+        Engine {
+            log: Rc::new(RefCell::new(Vec::new())),
+            workers: vec![],
+        }
+    }
+
+    pub fn add_worker(&mut self, id: usize) {
+        // 把Engine的 log 共享给 每个 worker
+
+        //                                 这里clone 的是 Rc
+        // self.workers.push(Worker::new(id, self.log.clone()));
+
+        // 我推荐这么写
+        self.workers.push(Worker::new(id, Rc::clone(&self.log)))
+    }
+
+    pub fn run(&self) {
+        // 下面的都可以
+        self.workers.iter().for_each(Worker::run);
+
+        // self.workers.iter().for_each(|v| v.run());
+    }
+
+    pub fn print_log(&self) {
+        let mut log = self.log.borrow();
+
+        for entry in &*log {
+            println!("{}", entry)
+        }
+    }
+}
+
+#[test]
+fn case1() {
+    let mut engine = Engine::new();
+    for id in 0..3 {
+        engine.add_worker(id)
+    }
+
+    engine.run();
+    println!("Log content:");
+    engine.print_log();
+
+    engine.run();
+    println!("\nFinal log content:");
+    engine.print_log();
+}
