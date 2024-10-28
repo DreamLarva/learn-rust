@@ -163,12 +163,4 @@ pub fn main() {
 
     // println!("{:?}", m);
 
-    let a = Rc::new(RefCell::new(Some(1)));
-    if let Some( n) = a.borrow_mut().as_mut() {
-        *n += 1
-    }
-
-
-    println!("{a:?}")
-
 }

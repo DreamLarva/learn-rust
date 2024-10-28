@@ -189,6 +189,8 @@ pub fn ch04_02_references_and_borrowing() {
             let b = &mut s;
 
             // 使用的时候才会报错 b 不应该也是 &mut
+            // 简而言之 如果一个&mut 使用了, 那么在在用完之前 是不能有另一个&mut 的
+            // 当然只声明 但是不使用 是不会报错的
             // a.push_str("1");
             // println!("{a} {b}");
         }
