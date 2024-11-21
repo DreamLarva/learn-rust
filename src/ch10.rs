@@ -1,4 +1,6 @@
 #![allow(unused_variables)] // 不对 未使用的变量 warning
+// 参考内容 
+/// [捋捋 Rust 中的 impl Trait 和 dyn Trait - 知乎](https://www.notion.so/Rust-impl-Trait-dyn-Trait-1340fcfefbe4811d82bec22174562559?pvs=4)
 
 pub fn ch10_00_generics() {
     // 这里入参的类型 是 &切片 使用切片的时候必定 有&
@@ -27,6 +29,15 @@ pub fn ch10_00_generics() {
     let result = largest(&number_list);
     println!("The largest number is {}", result);
     assert_eq!(result, 6000);
+
+
+    fn mutSlice(list: &mut [i32]) {
+        let largest = list.get_mut(0).unwrap();
+        *largest += 1;
+    }
+
+    let mut a = vec![1, 2, 3];
+    mutSlice(&mut a);
 }
 
 pub fn ch10_01_syntax() {
@@ -125,6 +136,7 @@ pub fn ch10_01_syntax() {
     }
 
     // const泛型（Rust 1.51版本引入的重要特性）
+    // const 泛型可以用来定义数组、向量等数据结构的长度，或者用于控制循环的次数等。它们在编译时就确定了值，因此可以用于优化代码和减少运行时的动态检查。
     {
         fn display_array1(arr: [i32; 3]) {
             println!("{arr:?}");
@@ -154,6 +166,29 @@ pub fn ch10_01_syntax() {
         }
         display_array4(&[1, 2]);
         // display_array4(&[1, 2, 3]); // error
+
+        // const 用来约束循环次数
+        fn repeat<const N: usize>(item: &str) {
+            for _ in 0..N {
+                println!("{}", item);
+            }
+        }
+
+        repeat::<5>("Hello");
+
+        struct Buffer<const N: usize> {
+            data: [u8; N],
+        }
+        // const 函数同样会在编译时执行
+        const fn compute_buffer_size(factor: usize) -> usize {
+            factor * 1024
+        }
+
+        const SIZE: usize = compute_buffer_size(4);
+        let buffer = Buffer::<SIZE> {
+            data: [0; SIZE],
+        };
+        println!("Buffer size: {} bytes", buffer.data.len());
     }
 }
 
@@ -226,6 +261,9 @@ pub fn ch10_02_traits() {
         pub trait Summary2<A, B> {
             fn summarize2<T>(&self, x: T) -> T;
         }
+        pub trait Summary3 {
+            fn summarize3<T>(&self, x: T) -> T;
+        }
 
         pub struct Tweet<A, B> {
             a: A,
@@ -241,20 +279,29 @@ pub fn ch10_02_traits() {
             }
         }
 
-        // 虽然实际没有 用到Summary2 的泛型 但是有几个 还是得写几个
+        // 虽然实际没有 用到Summary2 的泛型 (只要声明的时候有几个,实现的时候就必须写几个)
         impl Summary2<i32, f64> for Tweet<i32, i32> {
             fn summarize2<T>(&self, x: T) -> T {
                 x
             }
         }
 
+        impl Summary3 for Tweet<i32, i32> {
+            fn summarize3<T>(&self, x: T) -> T {
+                x
+            }
+        }
+
+
         // 上面没有 summarize1 方法 有 summarize2 方法
         let tweet1 = Tweet { a: 2, b: 1 };
         tweet1.summarize2(1);
+        tweet1.summarize3(1);
 
         // 只有 summarize1 方法`
         let tweet2 = Tweet { a: true, b: true };
         tweet2.summarize1();
+        // tweet2.summarize3(1); // error 没有实现
     }
 
     // 实现 trait 时需要注意的一个限制是，只有当 trait 或者要实现 trait 的类型位于 crate 的本地作用域时，才能为该类型实现 trait。
@@ -462,9 +509,62 @@ pub fn ch10_02_traits() {
             // item.a(); // error 找到多个 a 实现
             item.b();
         }
-        pub fn notify2<T: Summary + Display>(item: T) {}
+        pub fn notify2<T: Summary + Display>(item: T) {
+            item.b();
+        }
+
+        pub fn notify3<T: Summary + Display>(item: T) -> T {
+            item
+        }
+
+        pub fn notify4(item: impl Summary + Display) -> impl Summary + Display {
+            // 这里只需要  “实现了某个特征的类型”, 所以当然不用 item 也可以
+            NewsArticle {
+                headline: String::from("Penguins win the Stanley Cup Championship!"),
+                location: String::from("Pittsburgh, PA, USA"),
+                author: String::from("Iceburgh"),
+                content: String::from(
+                    "The Pittsburgh Penguins once again are the best
+    hockey team in the NHL.",
+                ),
+            }
+        }
+
+
+        // error 泛型 T类型约束 不可用于返回类型
+        //     pub fn notify4<T: Summary + Display>() -> T {
+        //         NewsArticle {
+        //             headline: String::from("Penguins win the Stanley Cup Championship!"),
+        //             location: String::from("Pittsburgh, PA, USA"),
+        //             author: String::from("Iceburgh"),
+        //             content: String::from(
+        //                 "The Pittsburgh Penguins once again are the best
+        // hockey team in the NHL.",
+        //             ),
+        //         }
+        //
+        //     }
+
+        // 返回类型用 impl 可以, impl 是在运行时确定类型的
+        pub fn notify5() -> impl Summary + Display {
+            NewsArticle {
+                headline: String::from("Penguins win the Stanley Cup Championship!"),
+                location: String::from("Pittsburgh, PA, USA"),
+                author: String::from("Iceburgh"),
+                content: String::from(
+                    "The Pittsburgh Penguins once again are the best
+        hockey team in the NHL.",
+                ),
+            }
+        }
 
         notify1(article);
+        notify5().b();
+
+
+        // 执行不同trait 的同名方法 (前提是 方法中的参数中都必须要有&self)
+        Display::a(&notify5());
+        Summary::a(&notify5());
     }
 
     // 通过where 简化代码  trait bound
@@ -743,9 +843,9 @@ pub fn ch10_03_lifetime_syntax() {
             let string2 = String::from("xyz");
             result = longest(string1.as_str(), string2.as_str());
         } // string2 生命周期在这里结束 要短于 string1
-          // 然而，我们通过生命周期参数告诉 Rust 的是： longest 函数返回的引用的生命周期应该与传入参数的生命周期中较短那个保持一致。
-          // println!("The longest string is {}", result); // error
-          // 较短的 生命周期是 string2 已经结束了 result 引用较短的那个 在这里已经没有了
+        // 然而，我们通过生命周期参数告诉 Rust 的是： longest 函数返回的引用的生命周期应该与传入参数的生命周期中较短那个保持一致。
+        // println!("The longest string is {}", result); // error
+        // 较短的 生命周期是 string2 已经结束了 result 引用较短的那个 在这里已经没有了
     }
 
     // 深入理解生命周期

@@ -1,3 +1,5 @@
+use std::cell::Cell;
+
 // 所有可能会用到模式的位置
 pub fn ch18_01_all_the_places_for_patterns() {
     // match 分支
@@ -138,6 +140,39 @@ pub fn ch18_03_pattern_syntax() {
             3 => println!("three"),
             _ => println!("anything"),
         }
+    }
+
+    {
+        let x = 9;
+        let message = match x {
+            0 | 1 => "not many",
+            2..=9 => "a few",
+            _ => "lots"
+        };
+
+        assert_eq!(message, "a few");
+
+        // Demonstration of pattern match order.
+        struct S(i32, i32);
+
+        match S(1, 2) {
+            S(z @ 1, _) | S(_, z @ 2) => assert_eq!(z, 1),
+            _ => panic!(),
+        }
+    }
+
+
+    // 注意：使用 | 运算符的多个匹配可能会导致模式守卫及其必须多次执行的副作用。例如：
+    {
+        let i: Cell<i32> = Cell::new(0);
+        match 1 {
+            1 | _ if {
+                i.set(i.get() + 1);
+                false
+            } => {}
+            _ => {}
+        }
+        assert_eq!(i.get(), 2);
     }
 
     // 通过..= 匹配值的范围

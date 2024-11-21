@@ -470,6 +470,31 @@ pub fn ch13_02_iterators() {
             .sum();
         assert_eq!(18, sum);
     }
+
+
+
+    // 注意这里返回的类型
+    fn foo1() -> impl Iterator<Item=i32> {
+        vec![1, 2, 3]
+            .into_iter()
+            .map(|x| x + 1)
+            .filter(|x| x % 2 == 0)
+    }
+
+    // 返回不同的类型
+    fn foo2(x: i32) -> Box<dyn Iterator<Item=i32>> {
+        let iter = vec![1, 2, 3]
+            .into_iter()
+            .map(|x| x + 1);
+
+        if x % 2 == 0 {
+            Box::new(iter.filter(|x| x % 2 == 0))
+        } else {
+            Box::new(iter)
+        }
+    }
+    
+    
 }
 
 #[test]
