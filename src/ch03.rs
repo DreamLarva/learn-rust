@@ -6,9 +6,9 @@ pub fn ch03_02_data_types() {
     /** 基本类型 */
     // 直接的赋值能够直接推断出值的类型
     let a = 1; // 默认为 i32
-    println!("a : {}", a);
+    println!("a : {a}");
     let b = 2.0; // 默认为 f64
-    println!("b : {}", b);
+    println!("b : {b}");
 
     // 或者显示指定类型注解
     //    let c:u32 = 123;
@@ -21,7 +21,7 @@ pub fn ch03_02_data_types() {
 
     // let guess: u8 = "-42".parse().expect("Not a number!"); // 运行时报错
     // let guess: u8 = "4222222222222222".parse().expect("Not a number!"); // 运行时报错
-    println!("guess : {}", guess);
+    println!("guess : {guess}");
 
     // 数字类型
     // Length	  Signed	Unsigned
@@ -65,17 +65,17 @@ pub fn ch03_02_data_types() {
     // 布尔类型
     let t = true;
     let f: bool = false; // 显式指定类型注解
-    println!("{},{}", t, f);
+    println!("{t},{f}");
 
     // 字符 单引号
     let c = 'z';
     let z = 'ℤ';
     let heart_eyed_cat = '😻';
-    println!("{},{},{}", c, z, heart_eyed_cat);
+    println!("{c},{z},{heart_eyed_cat}");
 
     // 字符串 4个字节 所以不能显示 8个字节的中文 emoji 等
     let string = "123abc";
-    println!("{}", string);
+    println!("{string}");
 
     /* 复合类型 */
     // 元组类型
@@ -92,8 +92,8 @@ pub fn ch03_02_data_types() {
 
     let one = _tup1.2;
 
-    println!("one : {}", one);
-    println!("The value of y is: {}", y);
+    println!("one : {one}");
+    println!("The value of y is: {y}");
 
     // 数组类型 所有元素的类型必须相同 且长度固定
     // 数组中的内容可以修改 但是数组的长度不能修改
@@ -146,7 +146,7 @@ pub fn ch03_03_how_functions_work() {
         x + 1 // 这行 没有 ; 表示这是一个返回值
     };
 
-    println!("The value of y is: {}", y);
+    println!("The value of y is: {y}");
 
     let z = five();
     let d = six(5);
@@ -255,7 +255,7 @@ pub fn ch03_05_control_flow() {
 
     // 跳出嵌套循环
     'outer: for i in 0..10 {
-        for j in 0..10 {
+        'inner: for j in 0..10 {
             println!("{},{}", i, j);
             if i == 1 && j == 2 {
                 break 'outer;

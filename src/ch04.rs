@@ -148,7 +148,7 @@ pub fn ch04_02_references_and_borrowing() {
             // 因为并不拥有这个值，当引用离开作用域时其指向的值也不会被丢弃。
             let len = calculate_length(&s1);
 
-            println!("The length of '{}' is {}.", s1, len);
+            println!("The length of '{s1}' is {len}.");
         }
 
         // 我们将获取引用作为函数参数称为 借用（borrowing）
@@ -181,7 +181,7 @@ pub fn ch04_02_references_and_borrowing() {
             change(&mut s);
             change(&mut s);
 
-            println!("{}", s)
+            println!("{s}",)
         }
         {
             let mut s = String::from("hello");
@@ -215,7 +215,8 @@ pub fn ch04_02_references_and_borrowing() {
 
         let r1 = &s; // no problem
         let r2 = &s; // no problem
-                     // let r3 = &mut s; // BIG PROBLEM 编译和检查时并不会报错 使用时才会报错
+
+        // let r3 = &mut s; // BIG PROBLEM 编译和检查时并不会报错 使用时才会报错
 
         println!("{r1} , {r2}");
         // println!("{r1}, {r2}, and {r3}"); // error
@@ -265,7 +266,7 @@ pub fn ch04_03_slices() {
 
         // s的值改变了  但是 word 的值 也就是 s的长度没有改变 所以逻辑上存在问题
         // s 和 word 并没有同步,这就可能存在bug的隐患
-        println!("{},{}", s, word)
+        println!("{s},{word}")
     }
     // 字符串 slice（string slice）
     {
@@ -291,10 +292,8 @@ pub fn ch04_03_slices() {
         let slice = &s[0..len];
         // 等同于
         let slice = &s[..];
-
-        let slice = &s[..len];
         // 等同于
-        let slice = &s[0..len];
+        let slice = &s[..len];
     }
     {
         // 传入切片类型 返回 切片

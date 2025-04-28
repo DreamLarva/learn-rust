@@ -1,11 +1,5 @@
 # Rust 标准库 Trait 指南 - RioTian - 博客园
 
-来源: 博客园
-已读: No
-URL: https://www.cnblogs.com/RioTian/p/18072690
-tags: rust
-添加日期: 2024年11月5日 16:18
-
 ## 引言
 
 你是否曾想过下面这些 trait 有什么不同？
@@ -3687,7 +3681,7 @@ fn example() -> Result<Triangle, OutOfBounds> {
 
 ### FromStr
 
-```
+```rust
 trait FromStr {
     type Err;
     fn from_str(s: &str) -> Result<Self, Self::Err>;
@@ -3696,7 +3690,7 @@ trait FromStr {
 
 `FromStr` 类型允许执行一个从`&str`到`Self`的可失败的转换。最常见的使用是在`&str`上调用`.parse()`方法：
 
-```
+```rust
 use std::str::FromStr;
 
 fn example<T: FromStr>(s: &'static str) {
@@ -3706,12 +3700,11 @@ fn example<T: FromStr>(s: &'static str) {
     let t: Result<T, _> = s.parse();
     let t = s.parse::<T>(); // 最常见的
 }
-
 ```
 
 例如，在`Point`上的实现：
 
-```
+```rust
 use std::error;
 use std::fmt;
 use std::iter::Enumerate;
@@ -3739,6 +3732,8 @@ impl fmt::Display for ParsePointError {
     }
 }
 
+// 这里将 ParseIntError 转换成 ParsePointError
+// 如果删除 下面的 parse::<i32>()? 部分就会报错
 impl From<ParseIntError> for ParsePointError {
     fn from(_e: ParseIntError) -> Self {
         ParsePointError
@@ -3795,25 +3790,23 @@ fn not_a_point() {
     let p = "not a point".parse::<Point>();
     assert_eq!(p, Err(ParsePointError));
 }
-
 ```
 
 `FromStr`和`TryFrom<&str>`有着相同的签名。只要我们通过其中一个实现另一个，先实现哪个并不重要。下面是对`Point`实现
 `TryFrom<&str>`，假定它已经实现了`FromStr`:
 
-```
+```rust
 impl TryFrom<&str> for Point {
     type Error = <Point as FromStr>::Err;
     fn try_from(s: &str) -> Result<Point, Self::Error> {
         <Point as FromStr>::from_str(s)
     }
 }
-
 ```
 
 ### AsRef & AsMut
 
-```
+```rust
 trait AsRef<T: ?Sized> {
     fn as_ref(&self) -> &T;
 }
@@ -3821,12 +3814,11 @@ trait AsRef<T: ?Sized> {
 trait AsMut<T: ?Sized> {
     fn as_mut(&mut self) -> &mut T;
 }
-
 ```
 
 `AsRef`被用于轻量级的引用到引用之间的转换。然而，它最常见的一个用途是使函数在是否获取所有权上具有通用性：
 
-```
+```rust
 // 接受:
 //  - &str
 //  - &String
@@ -3851,25 +3843,22 @@ fn example(slice: &str, borrow: &String, owned: String) {
     takes_asref_str(borrow);
     takes_asref_str(owned); // ✅
 }
-
 ```
 
 另一个常见用途是返回一个内部私有数据的引用，该数据由一个保护不变性的类型所包裹。标准库中一个比较好的示例是`String`，它包裹了
 `Vec<u8>`：
 
-```
+```rust
 struct String {
     vec: Vec<u8>,
 }
-
 ```
 
 内部的`Vec<u8>`不能被公开，因为如果这样的话，人们就会修改里面的字节并破坏`String`中有效的 UTF-8
 编码。但是，暴露内部字节数组的一个不可变的只读引用是安全的，即下面的实现：
 
-```
+```rust
 impl AsRef<[u8]> for String;
-
 ```
 
 一般而言，只有当一个类型包裹了其他类型用来为该内部类型提供了额外功能或者保护内部类型的不变性时，为这样的类型实现`AsRef`
@@ -3877,7 +3866,7 @@ impl AsRef<[u8]> for String;
 
 让我们来看一个`AsRef`的不合适使用：
 
-```
+```rust
 struct User {
     name: String,
     age: u32,
@@ -3894,12 +3883,11 @@ impl AsRef<u32> for User {
         &self.age
     }
 }
-
 ```
 
 一开始是可行的，而且看上去还有点道理，但是当我们为`User`添加更多成员时，问题就出现了：
 
-```
+```rust
 struct User {
     name: String,
     email: String,
@@ -3908,7 +3896,7 @@ struct User {
 }
 
 impl AsRef<String> for User {
-    fn as_ref(&self) -> &String {、
+    fn as_ref(&self) -> &String {
         //我们返回 name 还是 email?
     }
 }
@@ -3918,19 +3906,17 @@ impl AsRef<u32> for User {
         //我们返回 age 还是 height？
     }
 }
-
 ```
 
 `User`是由`String`和`u32`组成，但是它并不等同于一个`String`和一个`u32`，甚至我们还会有更多的类型：
 
-```
+```rust
 struct User {
     name: Name,
     email: Email,
     age: Age,
     height: Height,
 }
-
 ```
 
 对于这样的类型实现`AsRef`没有什么意义，因为`AsRef`用于语义相等的事物之间引用到引用的转换，而且`Name`、`Email`、`Age`以及
@@ -3938,7 +3924,7 @@ struct User {
 
 下面是一个好的示例，其中，我们会引入一个新类型`Moderator`，它只包裹了一个`User`并添加了特定的审核权限：
 
-```
+```rust
 struct User {
     name: String,
     age: u32,
@@ -3986,12 +3972,11 @@ fn example(user: User, moderator: Moderator) {
     create_post(&user);
     create_post(&moderator); // ✅
 }
-
 ```
 
 这是有效的，因为`Moderator`就是`User`。下面是`Deref`章节中的例子，我们用了`AsRef`来实现：
 
-```
+```rust
 use std::convert::AsRef;
 
 struct Human {
@@ -4135,7 +4120,6 @@ fn example(human: Human, soldier: Soldier, knight: Knight, mage: Mage, wizard: W
     borrows_knight(&knight);
     borrows_wizard(&wizard);
 }
-
 ```
 
 `Deref`在之前的例子中没有起作用，是因为解引用强制转换是类型间的隐式转换，这就为人们制定错误的想法并对其行为方式的期望留下了空间。
@@ -4143,7 +4127,7 @@ fn example(human: Human, soldier: Soldier, knight: Knight, mage: Mage, wizard: W
 
 ### Borrow & BorrowMut
 
-```
+```rust
 trait Borrow<Borrowed>
 where
     Borrowed: ?Sized,
@@ -4157,7 +4141,6 @@ where
 {
     fn borrow_mut(&mut self) -> &mut Borrowed;
 }
-
 ```
 
 这些 trait 被发明用于解决非常具体的问题，即使用`&str`类型的值在`HashSet`、`HashMap`、`BTreeSet`和`BTreeMap`中查找`String`
@@ -4166,7 +4149,7 @@ where
 我们可以把`Borrow<T>`和`BorrowMut<T>`看作更严格的`AsRef<T>`和`AsMut<T>`，它们返回的引用`&T`与`Self`有等价性的`Eq`、`Hash`和
 `Ord`实现。通过下面的例子会更易于理解：
 
-```
+```rust
 use std::borrow::Borrow;
 use std::hash::Hasher;
 use std::collections::hash_map::DefaultHasher;
@@ -4223,7 +4206,6 @@ where
     // borrow comparisons are required to match owned type comparisons
     assert_eq!(owned1.cmp(&owned2), borrow1.cmp(&borrow2)); // ✅
 }
-
 ```
 
 意识到这些 trait 以及它们为什么存在是有益的，因为它有助于搞清楚`HashSet`、`HashMap`、`BTreeSet`以及`BTreeMap`
@@ -4233,7 +4215,7 @@ where
 
 ### ToOwned
 
-```
+```rust
 trait ToOwned {
     type Owned: Borrow<Self>;
     fn to_owned(&self) -> Self::Owned;
@@ -4241,7 +4223,6 @@ trait ToOwned {
     // 提供默认实现
     fn clone_into(&self, target: &mut Self::Owned);
 }
-
 ```
 
 `ToOwned`是`Clone`的一个更为通用的版本。`Clone`允许我们获取一个`&T`并把它转为一个`T`，但是`ToOwned`允许我们拿到一个
@@ -4254,7 +4235,7 @@ trait ToOwned {
 
 ## Iteration Traits
 
-```
+```rust
 trait Iterator {
     type Item;
     fn next(&mut self) -> Option<Self::Item>;
@@ -4271,7 +4252,7 @@ trait Iterator {
         other: U
     ) -> Chain<Self, <U as IntoIterator>::IntoIter>
     where
-        U: IntoIterator<Item = Self::Item>;
+        U: IntoIterator<Item=Self::Item>;
     fn zip<U>(self, other: U) -> Zip<Self, <U as IntoIterator>::IntoIter>
     where
         U: IntoIterator;
@@ -4324,7 +4305,7 @@ trait Iterator {
         B: Default + Extend<Self::Item>;
     fn partition_in_place<'a, T, P>(self, predicate: P) -> usize
     where
-        Self: DoubleEndedIterator<Item = &'a mut T>,
+        Self: DoubleEndedIterator<Item=&'a mut T>,
         T: 'a,
         P: FnMut(&T) -> bool;
     fn is_partitioned<P>(self, predicate: P) -> bool
@@ -4333,11 +4314,11 @@ trait Iterator {
     fn try_fold<B, F, R>(&mut self, init: B, f: F) -> R
     where
         F: FnMut(B, Self::Item) -> R,
-        R: Try<Ok = B>;
+        R: Try<Ok=B>;
     fn try_for_each<F, R>(&mut self, f: F) -> R
     where
         F: FnMut(Self::Item) -> R,
-        R: Try<Ok = ()>;
+        R: Try<Ok=()>;
     fn fold<B, F>(self, init: B, f: F) -> B
     where
         F: FnMut(B, Self::Item) -> B;
@@ -4362,7 +4343,7 @@ trait Iterator {
     ) -> Result<Option<Self::Item>, <R as Try>::Error>
     where
         F: FnMut(&Self::Item) -> R,
-        R: Try<Ok = bool>;
+        R: Try<Ok=bool>;
     fn position<P>(&mut self, predicate: P) -> Option<usize>
     where
         P: FnMut(Self::Item) -> bool;
@@ -4395,16 +4376,16 @@ trait Iterator {
         Self: DoubleEndedIterator;
     fn unzip<A, B, FromA, FromB>(self) -> (FromA, FromB)
     where
-        Self: Iterator<Item = (A, B)>,
+        Self: Iterator<Item=(A, B)>,
         FromA: Default + Extend<A>,
         FromB: Default + Extend<B>;
     fn copied<'a, T>(self) -> Copied<Self>
     where
-        Self: Iterator<Item = &'a T>,
+        Self: Iterator<Item=&'a T>,
         T: 'a + Copy;
     fn cloned<'a, T>(self) -> Cloned<Self>
     where
-        Self: Iterator<Item = &'a T>,
+        Self: Iterator<Item=&'a T>,
         T: 'a + Clone;
     fn cycle(self) -> Cycle<Self>
     where
@@ -4417,7 +4398,7 @@ trait Iterator {
         P: Product<Self::Item>;
     fn cmp<I>(self, other: I) -> Ordering
     where
-        I: IntoIterator<Item = Self::Item>,
+        I: IntoIterator<Item=Self::Item>,
         Self::Item: Ord;
     fn cmp_by<I, F>(self, other: I, cmp: F) -> Ordering
     where
@@ -4488,14 +4469,13 @@ trait Iterator {
 
 大多数类型没有它们自己的迭代器，这对于初级Rustaceans来说，并不明显，但中级Rustaceans认为这是理所当然的。如果一个类型是可迭代的，我们几乎总是实现自定义的迭代器类型来迭代它，而不是让它自己迭代。
 
-```
-
+```rust
 struct MyType {
     items: Vec<String>
 }
 
 impl MyType {
-    fn iter(&self) -> impl Iterator<Item = &String> {
+    fn iter(&self) -> impl Iterator<Item=&String> {
         MyTypeIterator {
             index: 0,
             items: &self.items
@@ -4520,29 +4500,26 @@ impl<'a> Iterator for MyTypeIterator<'a> {
         }
     }
 }
-
 ```
 
 为了便于教学，上面的例子展示了如何从头开始实现一个迭代器，但在这种情况下，常用的解决方案是直接延用`Vec`的`iter`方法。
 
-```
+```rust
 struct MyType {
     items: Vec<String>
 }
 
 impl MyType {
-    fn iter(&self) -> impl Iterator<Item = &String> {
+    fn iter(&self) -> impl Iterator<Item=&String> {
         self.items.iter()
     }
 }
-
 ```
 
 而且，这也是一个需要注意到的generic blanket impl：
 
-```
+```rust
 impl<I: Iterator + ?Sized> Iterator for &mut I;
-
 ```
 
 一个迭代器的可变引用也是一个迭代器。知道这一点是有用的，因为它让我们能够使用`self`作为接收器（receiver）的迭代器方法，就像
@@ -4550,20 +4527,19 @@ impl<I: Iterator + ?Sized> Iterator for &mut I;
 
 举个例子，假定我们有一个函数，它处理一个数据超过三项的迭代器，但是函数的第一步是取出迭代器的前三项并在迭代完剩余项之前单独处理它们，下面是一个初学者可能会写出的函数实现：
 
-```
-fn example<I: Iterator<Item = i32>>(mut iter: I) {
+```rust
+fn example<I: Iterator<Item=i32>>(mut iter: I) {
     let first3: Vec<i32> = iter.take(3).collect();
     for item in iter { // ❌ iter consumed in line above
         // process remaining items
     }
 }
-
 ```
 
 这看起来有点让人头疼。`take`方法有一个`self`接收器，所以我们似乎不能在没有消耗整个迭代器的情况下调用它！下面是对上面代码的重构：
 
-```
-fn example<I: Iterator<Item = i32>>(mut iter: I) {
+```rust
+fn example<I: Iterator<Item=i32>>(mut iter: I) {
     let first3: Vec<i32> = vec![
         iter.next().unwrap(),
         iter.next().unwrap(),
@@ -4573,26 +4549,24 @@ fn example<I: Iterator<Item = i32>>(mut iter: I) {
         // process remaining items
     }
 }
-
 ```
 
 这样是没问题的，但是实际中通常会这样重构：
 
-```
-fn example<I: Iterator<Item = i32>>(mut iter: I) {
+```rust
+fn example<I: Iterator<Item=i32>>(mut iter: I) {
     let first3: Vec<i32> = iter.by_ref().take(3).collect();
     for item in iter { // ✅
         // process remaining items
     }
 }
-
 ```
 
 这种写法不太常见，但不管怎样，现在我们知道了。
 
 此外，对于什么类型可以或者不可以是迭代器，并没有规则或者约定。如果一个类型实现了`Iterator`，那么它就是一个迭代器。下面是标准库中一个新颖的例子：
 
-```
+```rust
 use std::sync::mpsc::channel;
 use std::thread;
 
@@ -4615,83 +4589,76 @@ fn receivers_can_be_iterated() {
         // iterate over received values
     }
 }
-
 ```
 
 ### IntoIterator
 
-```
+```rust
 trait IntoIterator
 where
-    <Self::IntoIter as Iterator>::Item == Self::Item,
+< Self::IntoIter as Iterator>::Item == Self::Item,
 {
-    type Item;
-    type IntoIter: Iterator;
-    fn into_iter(self) -> Self::IntoIter;
+type Item;
+type IntoIter: Iterator;
+fn into_iter( self ) -> Self::IntoIter;
 }
-
 ```
 
 正如其名，`IntoIterator`类型可以转化为迭代器。当一个类型在一个`for-in`循环里被使用的时候，该类型的`into_iter`方法会被调用：
 
-```
+```rust
 // vec = Vec<T>
 for v in vec {} // v = T
 
 // above line desugared
 for v in vec.into_iter() {}
-
 ```
 
 不仅`Vec`实现了`IntoIterator`，如果我们想在不可变引用或可变引用上迭代，`&Vec`和`&mut Vec`同样也是如此。
 
-```
+```rust
 // vec = Vec<T>
-for v in &vec {} // v = &T
+for v in & vec {} // v = &T
 
 // above example desugared
-for v in (&vec).into_iter() {}
+for v in ( & vec).into_iter() {}
 
 // vec = Vec<T>
-for v in &mut vec {} // v = &mut T
+for v in & mut vec {} // v = &mut T
 
 // above example desugared
-for v in (&mut vec).into_iter() {}
-
+for v in ( & mut vec).into_iter() {}
 ```
 
 ### FromIterator
 
-```
+```rust
 trait FromIterator<A> {
     fn from_iter<T>(iter: T) -> Self
     where
-        T: IntoIterator<Item = A>;
+        T: IntoIterator<Item=A>;
 }
-
 ```
 
-正如其名，`FromIterator`类型可以从一个迭代器创建而来。`FromIterator`最常用于`Iterator`上的`collect`方法调用：
+正如其名，`FromIterator`：
 
-```
+```rust
 fn collect<B>(self) -> B
 where
     B: FromIterator<Self::Item>;
-
 ```
 
 下面是一个例子，搜集（collect）一个`Iterator<Item = char>` 到 `String`:
 
-```
+```rust
 fn filter_letters(string: &str) -> String {
     string.chars().filter(|c| c.is_alphabetic()).collect()
 }
-
 ```
 
 标准库中所有的集合都实现了`IntoIterator`和`FromIterator`，从而使它们之间的转换更为简单：
 
-```
+```rust
 use std::collections::{BTreeSet, HashMap, HashSet, LinkedList};
 
 // String -> HashSet<char>
@@ -4710,12 +4677,11 @@ fn entry_list<K, V>(map: HashMap<K, V>) -> LinkedList<(K, V)> {
 }
 
 // and countless more possible examples
-
 ```
 
 ## I/O Traits
 
-```
+```rust
 trait Read {
     fn read(&mut self, buf: &mut [u8]) -> Result<usize>;
 
@@ -4754,15 +4720,13 @@ trait Write {
     where
         Self: Sized;
 }
-
 ```
 
 值得关注的generic blanket impls:
 
-```
+```rust
 impl<R: Read + ?Sized> Read for &mut R;
 impl<W: Write + ?Sized> Write for &mut W;
-
 ```
 
 也就是说，`Read`类型的任何可变引用也都是`Read`，`Write`同理。知道这些是有用的，因为它允许我们使用任何带有`self`接收器的方法，就像它有一个
@@ -4770,39 +4734,3 @@ impl<W: Write + ?Sized> Write for &mut W;
 
 这里我想指出的是，`&[u8]` 实现了`Read`，`Vec<u8>`实现了`Write`。因此我们可以对我们的文件处理函数进行简单的单元测试，通过使用
 `String`转换为`&[u8]`以及从`Vec<u8>` 转换为`String`：
-
-```
-use std::path::Path;
-use std::fs::File;
-use std::io::Read;
-use std::io::Write;
-use std::io;
-
-// function we want to test
-fn uppercase<R: Read, W: Write>(mut read: R, mut write: W) -> Result<(), io::Error> {
-    let mut buffer = String::new();
-    read.read_to_string(&mut buffer)?;
-    let uppercase = buffer.to_uppercase();
-    write.write_all(uppercase.as_bytes())?;
-    write.flush()?;
-    Ok(())
-}
-
-// in actual program we'd pass Files
-fn example(in_path: &Path, out_path: &Path) -> Result<(), io::Error> {
-    let in_file = File::open(in_path)?;
-    let out_file = File::open(out_path)?;
-    uppercase(in_file, out_file)
-}
-
-// however in unit tests we can use Strings!
-#[test] // ✅
-fn example_test() {
-    let in_file: String = "i am screaming".into();
-    let mut out_file: Vec<u8> = Vec::new();
-    uppercase(in_file.as_bytes(), &mut out_file).unwrap();
-    let out_result = String::from_utf8(out_file).unwrap();
-    assert_eq!(out_result, "I AM SCREAMING");
-}
-
-```

@@ -123,7 +123,6 @@ pub fn ch05_01_defining_structs() {
 
     // 没有任何字段类单元结构体
     // 称为 类单元结构体
-
     struct NoDataStruct;
     // 因为它们类似于 ()，即 unit 类型。
 
