@@ -60,7 +60,7 @@ pub fn ch08_03_hash_maps() {
         scores.insert("2", 50);
         let team_name = "2";
         let score = scores.get(&team_name); // 返回的是 Option<&T> 类型
-        println!("&str {score:?}"); // 还是能输出50
+        println!("&str {score:?}"); // 还是能输出 50
     }
 
     // 遍历 hashmap
@@ -71,7 +71,7 @@ pub fn ch08_03_hash_maps() {
         scores.insert(String::from("Yellow"), 50);
 
         for (key, value) in &scores {
-            println!("{}: {}", key, value);
+            println!("{key}: {value}");
         }
     }
 

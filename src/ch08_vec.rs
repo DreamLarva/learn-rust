@@ -44,11 +44,11 @@ pub fn ch08_01_vectors() {
         let v = vec![1, 2, 3, 4, 5];
         let third: &i32 = &v[2]; // 索引语法
         let third = &v[2]; // 自动推断
-        println!("the third element is {}", third);
+        println!("the third element is {third}");
 
         // get 语法 返回的 是以索引作为参数来返回一个 Option<&T>
         match v.get(2) {
-            Some(third) => println!("The third element is {}", third),
+            Some(third) => println!("The third element is {third}"),
             None => println!("There is no third element"),
         }
 
@@ -196,7 +196,7 @@ pub fn ch08_01_vectors() {
 
         while let Some(top) = stack.pop() {
             // Prints 3, 2, 1
-            println!("{}", top);
+            println!("{top}");
         }
     }
     // 切片
@@ -271,10 +271,6 @@ pub fn ch08_01_vectors() {
         vec.truncate(2);
         assert_eq!(vec, [1, 2]);
 
-        let mut vec = vec![1, 2, 3, 4, 5];
-        vec.truncate(2);
-        assert_eq!(vec, [1, 2]);
-
         let mut vec = vec![1, 2, 3];
         vec.truncate(0);
         assert_eq!(vec, []);
@@ -313,7 +309,7 @@ pub fn ch08_01_vectors() {
     }
 
     // pub fn remove(&mut self, index: usize) -> T
-    // 在 index 位置的 元素
+    // 删除并返回 在 index 位置的 元素
     {
         let mut v = vec![1, 2, 3];
         assert_eq!(v.remove(1), 2);
@@ -358,7 +354,7 @@ pub fn ch08_01_vectors() {
     // pub fn dedup_by<F>(&mut self, same_bucket: F)
     // where
     //     F: FnMut(&mut T, &mut T) -> bool,
-    // 移除vec中 调用same_bucket方法后 相同返回值中的多余一个的其他元素
+    // 移除 vec 中 调用 same_bucket 方法后 相同返回值中的多余一个的其他元素
     // same_bucket 方法 传入 两个元素 a,b  ;
     // a,b 表示的值为 current , previous
     // 如果 same_bucket(a,b) 返回 true, 则 a 被删除

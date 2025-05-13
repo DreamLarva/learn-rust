@@ -87,7 +87,7 @@ pub fn main() {
     // ch04::ch04_03_slices();
 
     // ch05::ch05_01_defining_structs();
-    ch05::ch05_02_example_structs();
+    // ch05::ch05_02_example_structs();
     // ch05::ch05_03_method_syntax();
 
     // ch06::ch06_01_defining_an_enum();

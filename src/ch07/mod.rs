@@ -1,3 +1,5 @@
+use crate::ch07::plant::Vegetable;
+
 // mod 关键字 定义模块 可嵌套
 // 任何src 下的文件 都需要一个mod 来导出
 // 文件中没有mod.rs到出 在文件夹的外层 是不能 导入的
@@ -20,7 +22,7 @@ mod sound {
 
         // let a = super::plant::Vegetable { name: "12", id: 1 };
         let a = super::plant::generate_struct();
-        // a.id; // private
+        // a.id; // error private
 
         // instrument::private_fn(); // error 私有
     }
@@ -49,7 +51,21 @@ mod plant {
             id: 1,
         }
     }
+    
+    fn test(){
+        let v = Vegetable {
+            id: 1, // OK
+            name: String::from("123"),
+        };
+    }
 }
+
+// fn test(){
+//     let v = Vegetable {
+//         id: 1, // error private
+//         name: String::from("123"),
+//     };
+// }
 
 mod menu {
     //  将枚举设计为公有会使其所有成员公有
@@ -146,6 +162,7 @@ pub fn main() {
         use std::io::Result as IoResult;
 
         // IoResult ...
+        let a:IoResult<i32> = Ok(32);
     }
 
     // 通过pub use 重导出名称

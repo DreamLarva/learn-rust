@@ -8,7 +8,7 @@ use std::io::Read;
 use std::ops::Add;
 
 pub fn ch08_02_strings() {
-    // 使用字符串存储 UTF-8编码的文本
+    // 使用字符串存储 UTF-8 编码的文本
     // Rust 的核心语言中只有一种字符串类型：str，字符串 slice，它通常以被借用的形式出现，&str
     // String 是一个 Vec<u8> 的封装
 

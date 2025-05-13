@@ -88,15 +88,14 @@ pub fn ch06_01_defining_an_enum() {
 
         // 可以在枚举上定义方法
         impl Message {
-            fn call(&self) {
+            fn call(&self) -> i32 {
                 // 在这里定义方法体
                 match self {
                     Message::Quit => 1,
                     Message::Move { x, y } => 2,
                     Message::Write(_) => 3,
                     Message::ChangeColor(_, _, _) => 4,
-                };
-                ()
+                }
             }
         }
 
