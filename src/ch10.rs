@@ -1,5 +1,5 @@
 #![allow(unused_variables)] // 不对 未使用的变量 warning
-// 参考内容 
+                            // 参考内容
 /// [捋捋 Rust 中的 impl Trait 和 dyn Trait - 知乎](https://www.notion.so/Rust-impl-Trait-dyn-Trait-1340fcfefbe4811d82bec22174562559?pvs=4)
 
 pub fn ch10_00_generics() {
@@ -29,7 +29,6 @@ pub fn ch10_00_generics() {
     let result = largest(&number_list);
     println!("The largest number is {}", result);
     assert_eq!(result, 6000);
-
 
     fn mutSlice(list: &mut [i32]) {
         let largest = list.get_mut(0).unwrap();
@@ -185,9 +184,7 @@ pub fn ch10_01_syntax() {
         }
 
         const SIZE: usize = compute_buffer_size(4);
-        let buffer = Buffer::<SIZE> {
-            data: [0; SIZE],
-        };
+        let buffer = Buffer::<SIZE> { data: [0; SIZE] };
         println!("Buffer size: {} bytes", buffer.data.len());
     }
 }
@@ -291,7 +288,6 @@ pub fn ch10_02_traits() {
                 x
             }
         }
-
 
         // 上面没有 summarize1 方法 有 summarize2 方法
         let tweet1 = Tweet { a: 2, b: 1 };
@@ -530,7 +526,6 @@ pub fn ch10_02_traits() {
             }
         }
 
-
         // error 泛型 T类型约束 不可用于返回类型
         //     pub fn notify4<T: Summary + Display>() -> T {
         //         NewsArticle {
@@ -560,7 +555,6 @@ pub fn ch10_02_traits() {
 
         notify1(article);
         notify5().b();
-
 
         // 执行不同trait 的同名方法 (前提是 方法中的参数中都必须要有&self)
         Display::a(&notify5());
@@ -843,9 +837,9 @@ pub fn ch10_03_lifetime_syntax() {
             let string2 = String::from("xyz");
             result = longest(string1.as_str(), string2.as_str());
         } // string2 生命周期在这里结束 要短于 string1
-        // 然而，我们通过生命周期参数告诉 Rust 的是： longest 函数返回的引用的生命周期应该与传入参数的生命周期中较短那个保持一致。
-        // println!("The longest string is {}", result); // error
-        // 较短的 生命周期是 string2 已经结束了 result 引用较短的那个 在这里已经没有了
+          // 然而，我们通过生命周期参数告诉 Rust 的是： longest 函数返回的引用的生命周期应该与传入参数的生命周期中较短那个保持一致。
+          // println!("The longest string is {}", result); // error
+          // 较短的 生命周期是 string2 已经结束了 result 引用较短的那个 在这里已经没有了
     }
 
     // 深入理解生命周期
@@ -928,16 +922,16 @@ pub fn ch10_03_lifetime_syntax() {
         // 编译器将会停止并生成错误。这些规则适用于 fn 定义，以及 impl 块。
 
         // 1. 第一条规则是每一个是引用的参数都有它自己的生命周期参数。换句话说就是，
-        // 有一个引用参数的函数有一个生命周期参数：fn foo<'a>(x: &'a i32)，
-        // 有两个引用参数的函数有两个不同的生命周期参数，fn foo<'a, 'b>(x: &'a i32, y: &'b i32)，依此类推。
+        //  有一个引用参数的函数有一个生命周期参数：fn foo<'a>(x: &'a i32)，
+        //  有两个引用参数的函数有两个不同的生命周期参数，fn foo<'a, 'b>(x: &'a i32, y: &'b i32)，依此类推。
 
         // 2. 第二条规则是如果只有一个输入生命周期参数，
-        // 那么它被赋予所有输出生命周期参数：fn foo<'a>(x: &'a i32) -> &'a i32。
+        //  那么它被赋予所有输出生命周期参数：fn foo<'a>(x: &'a i32) -> &'a i32。
 
         // 3. 第三条规则是如果方法有多个输入生命周期参数并且其中一个参数是 &self 或 &mut self，
-        // 说明是个对象的方法(method),
-        // 那么所有输出生命周期参数被赋予 self 的生命周期。
-        // 第三条规则使得方法更容易读写，因为只需更少的符号。
+        //  说明是个对象的方法(method),
+        //  那么所有输出生命周期参数被赋予 self 的生命周期。
+        //  第三条规则使得方法更容易读写，因为只需更少的符号。
 
         // fn first_word(s: &str) -> &str {
         // 按照第一条规则转换为

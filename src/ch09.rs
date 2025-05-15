@@ -58,6 +58,18 @@ pub fn ch09_02_recoverable_errors_with_result() {
             },
         };
     }
+
+    {
+        let f = File::open("hello.txt");
+        let f = f.unwrap_or_else(|error| match error.kind() {
+            ErrorKind::NotFound => match File::create("hello.txt") {
+                Ok(fc) => fc,
+                Err(e) => panic!("Tired to create file but there is a problem: {:?}", e),
+            },
+            other_error => panic!("there was a problem opening the file: {:?}", other_error),
+        });
+    }
+
     // 更老练的 Rustacean 可能会这么写
     {
         let f = File::open("hello.txt").unwrap_or_else(|error| {
@@ -106,7 +118,7 @@ pub fn ch09_02_recoverable_errors_with_result() {
         }
 
         match read_username_from_file() {
-            Ok(s) => println!("data is: {}", s),
+            Ok(s) => println!("data is: {s}"),
             Err(e) => panic!("{:?}", e),
         }
     }
@@ -135,7 +147,7 @@ pub fn ch09_02_recoverable_errors_with_result() {
             Ok(s)
         }
         match read_username_from_file() {
-            Ok(s) => println!("data is: {}", s),
+            Ok(s) => println!("data is: {s}"),
             Err(e) => panic!("{:?}", e),
         }
     }
